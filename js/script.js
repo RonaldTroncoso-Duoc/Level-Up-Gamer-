@@ -184,3 +184,262 @@ function registrarUsuario() {
 
   return true;
 }
+
+const productos = [
+  {
+    id: "JM001",
+    nombre: "Catan",
+    categoria: "Juegos de Mesa",
+    precio: 29990,
+    imagen: "img/catan.jpg",
+    descripcion:
+      "Un clásico juego de estrategia donde los jugadores compiten por colonizar y expandirse en la isla de Catan. Ideal para 3-4 jugadores y perfecto para noches de juego en familia o con amigos.",
+  },
+
+  {
+    id: "JM002",
+    nombre: "Carcassonne",
+    categoria: "Juegos de Mesa",
+    precio: 24990,
+    imagen: "img/carcassonne.jpg",
+    descripcion:
+      "Un juego de colocación de fichas donde los jugadores construyen el paisaje alrededor de la fortaleza medieval de Carcassonne. Ideal para 2-5 jugadores y fácil de aprender.",
+  },
+
+  {
+    id: "AC001",
+    nombre: "Controlador Inalámbrico Xbox Series X",
+    categoria: "Accesorios",
+    precio: 59990,
+    imagen: "img/control-xbox.jpg",
+    descripcion:
+      "Ofrece una experiencia de juego cómoda con botones mapeables y una respuesta táctil mejorada. Compatible con consolas Xbox y PC.",
+  },
+
+  {
+    id: "AC002",
+    nombre: "Auriculares Gamer HyperX Cloud II",
+    categoria: "Accesorios",
+    precio: 79990,
+    imagen: "img/hyperx.jpg",
+    descripcion:
+      "Proporcionan un sonido envolvente de calidad con un micrófono desmontable y almohadillas de espuma viscoelástica para mayor comodidad durante largas sesiones de juego.",
+  },
+
+  {
+    id: "CO001",
+    nombre: "PlayStation 5",
+    categoria: "Consolas",
+    precio: 549990,
+    imagen: "img/playstation5.jpg",
+    descripcion:
+      "La consola de última generación de Sony, que ofrece gráficos impresionantes y tiempos de carga ultrarrápidos para una experiencia de juego inmersiva.",
+  },
+
+  {
+    id: "CG001",
+    nombre: "PC Gamer ASUS ROG Strix",
+    categoria: "Computadores Gamers",
+    precio: 1299990,
+    imagen: "img/pc-asus.jpg",
+    descripcion:
+      "Un potente equipo diseñado para los gamers más exigentes, equipado con los últimos componentes para ofrecer un rendimiento excepcional en cualquier juego.",
+  },
+
+  {
+    id: "SG001",
+    nombre: "Silla Gamer Secretlab Titan",
+    categoria: "Sillas Gamers",
+    precio: 349990,
+    imagen: "img/secretlab.jpg",
+    descripcion:
+      "Diseñada para el máximo confort, esta silla ofrece un soporte ergonómico y personalización ajustable para sesiones de juego prolongadas.",
+  },
+
+  {
+    id: "MS001",
+    nombre: "Mouse Gamer Logitech G502 HERO",
+    categoria: "Mouse",
+    precio: 49990,
+    imagen: "img/logitech-g502.jpg",
+    descripcion:
+      "Con sensor de alta precisión y botones personalizables, este mouse es ideal para gamers que buscan un control preciso y personalización.",
+  },
+
+  {
+    id: "MP001",
+    nombre: "Mousepad Razer Goliathus Extended Chroma",
+    categoria: "Mousepad",
+    precio: 29990,
+    imagen: "img/mousepad-razer.jpg",
+    descripcion:
+      "Ofrece un área de juego amplia con iluminación RGB personalizable, asegurando una superficie suave y uniforme para el movimiento del mouse.",
+  },
+
+  {
+    id: "PP001",
+    nombre: "Polera Gamer Personalizada 'Level-Up'",
+    categoria: "Poleras Personalizadas",
+    precio: 14990,
+    imagen: "img/polera-levelup.jpg",
+    descripcion:
+      "Una camiseta cómoda y estilizada, con la posibilidad de personalizarla con tu gamer tag o diseño favorito.",
+  },
+];
+
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+const productList = document.getElementById("product-list");
+
+function mostrarProductos() {
+  productList.innerHTML = "";
+
+  productos.forEach((producto) => {
+    const div = document.createElement("div");
+
+    div.className = "col-12 col-sm-6 col-lg-3";
+
+    div.innerHTML = `
+      <div class="card h-100">
+
+        <img src="${producto.imagen}"
+             class="card-img-top"
+             alt="${producto.nombre}">
+
+        <div class="card-body">
+
+          <h5 class="card-title">
+            ${producto.nombre}
+          </h5>
+
+          <p class="card-text">
+            ${producto.categoria}
+          </p>
+
+          <p class="fw-bold">
+            $${producto.precio.toLocaleString("es-CL")}
+          </p>
+
+          <button
+            class="btn btn-outline-dark"
+            onclick="agregarAlCarrito('${producto.id}')">
+            Agregar al carrito
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+    productList.appendChild(div);
+  });
+}
+
+function agregarAlCarrito(id) {
+  const producto = productos.find((p) => p.id === id);
+  const item = carrito.find((i) => i.id === id);
+
+  if (item) {
+    item.cantidad += 1;
+  } else {
+    carrito.push({
+      ...producto,
+      cantidad: 1,
+    });
+  }
+
+  guardarCarrito();
+  mostrarCarrito();
+}
+
+function guardarCarrito() {
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+}
+
+const cartList = document.getElementById("cart-list");
+
+function mostrarCarrito() {
+  cartList.innerHTML = "";
+
+  if (carrito.length === 0) {
+    cartList.innerHTML = "<p>El carrito está vacío.</p>";
+    return;
+  }
+
+  carrito.forEach((item) => {
+    const div = document.createElement("div");
+
+    div.className = "cart-item";
+
+    div.innerHTML = `
+      <strong>${item.nombre}</strong><br>
+
+      Precio:
+      $${item.precio.toLocaleString("es-CL")}
+
+      x ${item.cantidad}
+
+      =
+      $${(item.precio * item.cantidad).toLocaleString("es-CL")}
+
+      <br>
+
+      <button onclick="agregarAlCarrito('${item.id}')">
+        +
+      </button>
+
+      <button onclick="disminuirCantidad('${item.id}')">
+        -
+      </button>
+
+      <button onclick="eliminarDelCarrito('${item.id}')">
+        Eliminar
+      </button>
+    `;
+
+    cartList.appendChild(div);
+  });
+
+  const total = carrito.reduce(
+    (sum, item) => sum + item.precio * item.cantidad,
+    0,
+  );
+
+  cartList.innerHTML += `
+    <h3>
+      Total: $${total.toLocaleString("es-CL")}
+    </h3>
+  `;
+}
+
+function disminuirCantidad(id) {
+  const item = carrito.find((i) => i.id === id);
+
+  if (item) {
+    item.cantidad -= 1;
+
+    if (item.cantidad <= 0) {
+      carrito = carrito.filter((i) => i.id !== id);
+    }
+
+    guardarCarrito();
+    mostrarCarrito();
+  }
+}
+
+function eliminarDelCarrito(id) {
+  carrito = carrito.filter((item) => item.id !== id);
+
+  guardarCarrito();
+  mostrarCarrito();
+}
+
+function vaciarCarrito() {
+  carrito = [];
+
+  guardarCarrito();
+  mostrarCarrito();
+}
+
+mostrarProductos();
+mostrarCarrito();
