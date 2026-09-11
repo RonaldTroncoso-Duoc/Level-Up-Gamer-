@@ -33,19 +33,7 @@ function registrarUsuario() {
 
   // Obtener los valores de los campos del formulario
   const nombre = document.getElementById("nombre").value.trim();
-  const fechaNacimiento = new Date(
-    document.getElementById("fechaNacimiento").value,
-  );
-  const hoy = new Date();
-  let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
-  const mes = hoy.getMonth() - fechaNacimiento.getMonth();
-  if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
-    edad--;
-  }
-  if (edad < 18) {
-    errores.push("Debes ser mayor de 18 años para registrarte.");
-    return false;
-  }
+  const fechaNacimientoTexto = document.getElementById("fechaNacimiento").value;
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   const confirmPassword = document
@@ -53,40 +41,64 @@ function registrarUsuario() {
     .value.trim();
 
   // Validar que los campos no estén vacíos
-  if (!nombre || !fechaNacimiento || !email || !password || !confirmPassword) {
+  if (
+    !nombre ||
+    !fechaNacimientoTexto ||
+    !email ||
+    !password ||
+    !confirmPassword
+  ) {
     errores.push("Por favor, completa todos los campos.");
   }
 
-  // 1.Validar nombre.
+  // 1. Validar nombre
   if (nombre === "") {
     errores.push("El nombre es obligatorio.");
   } else if (nombre.length > 50) {
     errores.push("El nombre no puede superar los 50 caracteres.");
   }
 
-  // 2.Validar fecha de nacimiento.
-  if (isNaN(fechaNacimiento.getTime())) {
-    errores.push("La fecha de nacimiento no es válida.");
-  }
-  if (fechaNacimiento === "") {
+  // 2. Validar fecha de nacimiento
+  if (fechaNacimientoTexto === "") {
     errores.push("La fecha de nacimiento es obligatoria.");
+  } else {
+    const fechaNacimiento = new Date(fechaNacimientoTexto);
+
+    if (isNaN(fechaNacimiento.getTime())) {
+      errores.push("La fecha de nacimiento no es válida.");
+    } else {
+      const hoy = new Date();
+
+      let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+
+      const mes = hoy.getMonth() - fechaNacimiento.getMonth();
+
+      if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+        edad--;
+      }
+      if (edad < 18) {
+        errores.push("Debes ser mayor de 18 años para registrarte.");
+      }
+    }
   }
 
-  // 3.Validar correo.
+  // 3. Validar correo
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   if (email === "") {
     errores.push("El correo es obligatorio.");
   } else if (!emailRegex.test(email)) {
     errores.push("El correo debe ser válido.");
   }
 
-  // 4.Validar que las contraseñas coincidan
+  // 4. Validar contraseñas
   if (password.length < 6 || confirmPassword.length < 6) {
     errores.push("La contraseña debe tener al menos 6 caracteres.");
   } else if (password !== confirmPassword) {
     errores.push("Las contraseñas no coinciden.");
   }
 
+  // Mostrar errores
   if (errores.length > 0) {
     let html = "";
 
@@ -106,6 +118,7 @@ function registrarUsuario() {
       email +
       "<br>" +
       "</div>";
+
     document.getElementById("formularioRegistro").reset();
   }
 }
