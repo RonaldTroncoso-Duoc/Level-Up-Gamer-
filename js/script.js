@@ -28,6 +28,10 @@ function validarLogin() {
 }
 
 function registrarUsuario() {
+  // Guardar los errores encontrados.
+  const errores = [];
+
+  // Obtener los valores de los campos del formulario
   const nombre = document.getElementById("nombre").value.trim();
   const fechaNacimiento = new Date(
     document.getElementById("fechaNacimiento").value,
@@ -39,7 +43,7 @@ function registrarUsuario() {
     edad--;
   }
   if (edad < 18) {
-    alert("Debes ser mayor de 18 años para registrarte.");
+    errores.push("Debes ser mayor de 18 años para registrarte.");
     return false;
   }
   const email = document.getElementById("email").value.trim();
@@ -47,4 +51,61 @@ function registrarUsuario() {
   const confirmPassword = document
     .getElementById("confirmPassword")
     .value.trim();
+
+  // Validar que los campos no estén vacíos
+  if (!nombre || !fechaNacimiento || !email || !password || !confirmPassword) {
+    errores.push("Por favor, completa todos los campos.");
+  }
+
+  // 1.Validar nombre.
+  if (nombre === "") {
+    errores.push("El nombre es obligatorio.");
+  } else if (nombre.length > 50) {
+    errores.push("El nombre no puede superar los 50 caracteres.");
+  }
+
+  // 2.Validar fecha de nacimiento.
+  if (isNaN(fechaNacimiento.getTime())) {
+    errores.push("La fecha de nacimiento no es válida.");
+  }
+  if (fechaNacimiento === "") {
+    errores.push("La fecha de nacimiento es obligatoria.");
+  }
+
+  // 3.Validar correo.
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (email === "") {
+    errores.push("El correo es obligatorio.");
+  } else if (!emailRegex.test(email)) {
+    errores.push("El correo debe ser válido.");
+  }
+
+  // 4.Validar que las contraseñas coincidan
+  if (password.length < 6 || confirmPassword.length < 6) {
+    errores.push("La contraseña debe tener al menos 6 caracteres.");
+  } else if (password !== confirmPassword) {
+    errores.push("Las contraseñas no coinciden.");
+  }
+
+  if (errores.length > 0) {
+    let html = "";
+
+    for (let error of errores) {
+      html += '<div class="error">⚠️ ' + error + "</div>";
+    }
+
+    mensajes.innerHTML = html;
+  } else {
+    mensajes.innerHTML =
+      '<div class="exito">' +
+      "✅ Registro realizado correctamente.<br><br>" +
+      "Nombre: " +
+      nombre +
+      "<br>" +
+      "Correo: " +
+      email +
+      "<br>" +
+      "</div>";
+    document.getElementById("formularioRegistro").reset();
+  }
 }
