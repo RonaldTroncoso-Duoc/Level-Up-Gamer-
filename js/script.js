@@ -39,6 +39,9 @@ function registrarUsuario() {
   const confirmPassword = document
     .getElementById("confirmPassword")
     .value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
+  const region = document.getElementById("region").value;
+  const comuna = document.getElementById("comuna").value;
 
   // Validar que los campos no estén vacíos
   if (
@@ -46,9 +49,11 @@ function registrarUsuario() {
     !fechaNacimientoTexto ||
     !email ||
     !password ||
-    !confirmPassword
+    !confirmPassword ||
+    !region ||
+    !comuna
   ) {
-    errores.push("Por favor, completa todos los campos.");
+    errores.push("Por favor, completa todos los campos obligatorios.");
   }
 
   // 1. Validar nombre
@@ -98,6 +103,16 @@ function registrarUsuario() {
     errores.push("Las contraseñas no coinciden.");
   }
 
+  // 5. Validar región
+  if (region === "") {
+    errores.push("Debes seleccionar una región.");
+  }
+
+  // 6. Validar comuna
+  if (comuna === "") {
+    errores.push("Debes seleccionar una comuna.");
+  }
+
   // Mostrar errores
   if (errores.length > 0) {
     let html = "";
@@ -116,6 +131,12 @@ function registrarUsuario() {
       "<br>" +
       "Correo: " +
       email +
+      "<br>" +
+      "Región: " +
+      region +
+      "<br>" +
+      "Comuna: " +
+      comuna +
       "<br>" +
       "</div>";
 
