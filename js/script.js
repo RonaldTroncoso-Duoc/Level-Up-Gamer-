@@ -93,8 +93,19 @@ function validarLogin() {
   const email = document.getElementById("email")?.value.trim().toLowerCase() || "";
   const password = document.getElementById("password")?.value.trim() || "";
 
-  if (!email || !password) {
-    errores.push("Por favor, completa todos los campos.");
+  if (!email && !password) {
+    mostrarMensajes(["Ingresa tu correo y contraseña."]);
+    return false;
+  }
+
+  if (!email) {
+    mostrarMensajes(["Ingresa tu correo."]);
+    return false;
+  }
+
+  if (!password) {
+    mostrarMensajes(["Ingresa tu contraseña."]);
+    return false;
   }
 
   if (email.length > 100) {
@@ -133,28 +144,29 @@ function validarLogin() {
   }
 
   const usuarios = obtenerUsuariosRegistrados();
-  const usuarioEncontrado = usuarios.find(
-    (usuario) => usuario.email === email && usuario.password === password,
-  );
+  const usuarioPorCorreo = usuarios.find((usuario) => usuario.email === email);
 
-  if (!usuarioEncontrado) {
-    mostrarMensajes([
-      "No existe un usuario registrado con ese correo y contraseña. Regístrate primero o revisa tus datos.",
-    ]);
+  if (!usuarioPorCorreo) {
+    mostrarMensajes(["No existe una cuenta registrada con ese correo."]);
+    return false;
+  }
+
+  if (usuarioPorCorreo.password !== password) {
+    mostrarMensajes(["La contraseña ingresada es incorrecta."]);
     return false;
   }
 
   guardarUsuarioActivo({
-    nombre: usuarioEncontrado.nombre,
-    email: usuarioEncontrado.email,
-    telefono: usuarioEncontrado.telefono,
-    region: usuarioEncontrado.region,
-    comuna: usuarioEncontrado.comuna,
+    nombre: usuarioPorCorreo.nombre,
+    email: usuarioPorCorreo.email,
+    telefono: usuarioPorCorreo.telefono,
+    region: usuarioPorCorreo.region,
+    comuna: usuarioPorCorreo.comuna,
     rol: "cliente",
-    descuentoDuoc: usuarioEncontrado.descuentoDuoc,
+    descuentoDuoc: usuarioPorCorreo.descuentoDuoc,
   });
 
-  mostrarExito(`✅ Inicio de sesión correcto. Bienvenido, ${usuarioEncontrado.nombre}.`);
+  mostrarExito(`✅ Inicio de sesión correcto. Bienvenido, ${usuarioPorCorreo.nombre}.`);
   actualizarHeaderUsuario();
 
   setTimeout(() => {
@@ -176,7 +188,10 @@ function registrarUsuario() {
   const region = document.getElementById("region")?.value || "";
   const comuna = document.getElementById("comuna")?.value || "";
 
-  if (!nombre || !fechaNacimientoTexto || !email || !password || !confirmPassword || !region || !comuna) {
+  const camposObligatorios = [nombre, fechaNacimientoTexto, email, password, confirmPassword, region, comuna];
+  const todosLosCamposObligatoriosVacios = camposObligatorios.every((campo) => campo === "");
+
+  if (todosLosCamposObligatoriosVacios) {
     errores.push("Por favor, completa todos los campos obligatorios.");
   }
 
