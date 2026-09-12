@@ -62,89 +62,130 @@ function cargarRegionesYComunas() {
   });
 }
 
+function obtenerUsuariosRegistrados() {
+  return JSON.parse(localStorage.getItem("usuariosLevelUp")) || [];
+}
+
+function guardarUsuariosRegistrados(usuarios) {
+  localStorage.setItem("usuariosLevelUp", JSON.stringify(usuarios));
+}
+
+function obtenerUsuarioActivo() {
+  return JSON.parse(localStorage.getItem("usuarioActivo")) || null;
+}
+
+function guardarUsuarioActivo(usuario) {
+  localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+}
+
+function obtenerIniciales(nombre) {
+  return nombre
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte.charAt(0).toUpperCase())
+    .join("") || "UG";
+}
+
 function validarLogin() {
-  // Guardar los errores encontrados.
   const errores = [];
 
-  // Obtener los valores de los campos
-  const email = document.getElementById("email")?.value.trim() || "";
+  const email = document.getElementById("email")?.value.trim().toLowerCase() || "";
   const password = document.getElementById("password")?.value.trim() || "";
 
-  // Validar que los campos no estén vacíos
   if (!email || !password) {
     errores.push("Por favor, completa todos los campos.");
   }
 
-  const emailAdminRegex = /^admin@gmail\.com$/;
-  if (emailAdminRegex.test(email) && password === "admin123") {
-    return true;
-  }
-  // Validar longitud del correo
   if (email.length > 100) {
     errores.push("El correo no puede superar los 100 caracteres.");
   }
 
-  // Validar formato y dominio del correo
   const emailRegex = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/;
 
   if (email !== "" && !emailRegex.test(email)) {
-    errores.push(
-      "El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.",
-    );
+    errores.push("El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.");
   }
 
-  // Validar longitud de la contraseña
   if (password.length < 4 || password.length > 10) {
     errores.push("La contraseña debe tener entre 4 y 10 caracteres.");
   }
 
-  // Mostrar errores
   if (errores.length > 0) {
     mostrarMensajes(errores);
     return false;
   }
 
-  mostrarExito("✅ Inicio de sesión válido. Bienvenido a Level-Up Gamer.");
+  if (email === "admin@gmail.com" && password === "admin123") {
+    guardarUsuarioActivo({
+      nombre: "Administrador",
+      email,
+      rol: "admin",
+      descuentoDuoc: false,
+    });
 
-  // Si no hay errores, permitir el inicio de sesión
+    mostrarExito("✅ Inicio de sesión correcto. Bienvenido, Administrador.");
+    actualizarHeaderUsuario();
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 900);
+    return false;
+  }
+
+  const usuarios = obtenerUsuariosRegistrados();
+  const usuarioEncontrado = usuarios.find(
+    (usuario) => usuario.email === email && usuario.password === password,
+  );
+
+  if (!usuarioEncontrado) {
+    mostrarMensajes([
+      "No existe un usuario registrado con ese correo y contraseña. Regístrate primero o revisa tus datos.",
+    ]);
+    return false;
+  }
+
+  guardarUsuarioActivo({
+    nombre: usuarioEncontrado.nombre,
+    email: usuarioEncontrado.email,
+    telefono: usuarioEncontrado.telefono,
+    region: usuarioEncontrado.region,
+    comuna: usuarioEncontrado.comuna,
+    rol: "cliente",
+    descuentoDuoc: usuarioEncontrado.descuentoDuoc,
+  });
+
+  mostrarExito(`✅ Inicio de sesión correcto. Bienvenido, ${usuarioEncontrado.nombre}.`);
+  actualizarHeaderUsuario();
+
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 900);
+
   return false;
 }
 
 function registrarUsuario() {
-  // Guardar los errores encontrados.
   const errores = [];
 
-  // Obtener los valores de los campos del formulario
   const nombre = document.getElementById("nombre")?.value.trim() || "";
   const fechaNacimientoTexto = document.getElementById("fechaNacimiento")?.value || "";
-  const email = document.getElementById("email")?.value.trim() || "";
+  const email = document.getElementById("email")?.value.trim().toLowerCase() || "";
   const password = document.getElementById("password")?.value.trim() || "";
   const confirmPassword = document.getElementById("confirmPassword")?.value.trim() || "";
   const telefono = document.getElementById("telefono")?.value.trim() || "";
   const region = document.getElementById("region")?.value || "";
   const comuna = document.getElementById("comuna")?.value || "";
 
-  // Validar campos obligatorios
-  if (
-    !nombre ||
-    !fechaNacimientoTexto ||
-    !email ||
-    !password ||
-    !confirmPassword ||
-    !region ||
-    !comuna
-  ) {
+  if (!nombre || !fechaNacimientoTexto || !email || !password || !confirmPassword || !region || !comuna) {
     errores.push("Por favor, completa todos los campos obligatorios.");
   }
 
-  // 1. Validar nombre completo
   if (nombre === "") {
     errores.push("El nombre es obligatorio.");
   } else if (nombre.length > 100) {
     errores.push("El nombre no puede superar los 100 caracteres.");
   }
 
-  // 2. Validar fecha de nacimiento
   if (fechaNacimientoTexto === "") {
     errores.push("La fecha de nacimiento es obligatoria.");
   } else {
@@ -154,9 +195,7 @@ function registrarUsuario() {
       errores.push("La fecha de nacimiento no es válida.");
     } else {
       const hoy = new Date();
-
       let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
-
       const mes = hoy.getMonth() - fechaNacimiento.getMonth();
 
       if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
@@ -169,7 +208,6 @@ function registrarUsuario() {
     }
   }
 
-  // 3. Validar correo
   const emailRegex = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/;
 
   if (email === "") {
@@ -177,12 +215,9 @@ function registrarUsuario() {
   } else if (email.length > 100) {
     errores.push("El correo no puede superar los 100 caracteres.");
   } else if (!emailRegex.test(email)) {
-    errores.push(
-      "El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.",
-    );
+    errores.push("El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.");
   }
 
-  // 4. Validar contraseñas
   if (password === "" || confirmPassword === "") {
     errores.push("La contraseña es obligatoria.");
   } else if (
@@ -196,38 +231,60 @@ function registrarUsuario() {
     errores.push("Las contraseñas no coinciden.");
   }
 
-  // 5. Validar región
   if (region === "") {
     errores.push("Debes seleccionar una región.");
   }
 
-  // 6. Validar comuna
   if (comuna === "") {
     errores.push("Debes seleccionar una comuna.");
   }
 
-  // Mostrar errores
+  const usuarios = obtenerUsuariosRegistrados();
+  const usuarioYaExiste = usuarios.some((usuario) => usuario.email === email);
+
+  if (usuarioYaExiste) {
+    errores.push("Ya existe una cuenta registrada con ese correo.");
+  }
+
   if (errores.length > 0) {
     mostrarMensajes(errores);
     return false;
   }
 
-  // Registro exitoso
+  const descuentoDuoc = email.endsWith("@duoc.cl") || email.endsWith("@profesor.duoc.cl");
+
+  const nuevoUsuario = {
+    id: Date.now(),
+    nombre,
+    fechaNacimiento: fechaNacimientoTexto,
+    email,
+    password,
+    telefono,
+    region,
+    comuna,
+    descuentoDuoc,
+  };
+
+  usuarios.push(nuevoUsuario);
+  guardarUsuariosRegistrados(usuarios);
+
   mostrarExito(
     "✅ Registro realizado correctamente.<br><br>" +
-    "Nombre: " +
-    nombre +
-    "<br>" +
-    "Correo: " +
-    email +
-    "<br>" +
-    "Región: " +
-    region +
-    "<br>" +
-    "Comuna: " +
-    comuna +
-    "<br>" +
-    (telefono ? "Teléfono: " + telefono + "<br>" : "")
+      "Nombre: " +
+      nombre +
+      "<br>" +
+      "Correo: " +
+      email +
+      "<br>" +
+      "Región: " +
+      region +
+      "<br>" +
+      "Comuna: " +
+      comuna +
+      "<br>" +
+      (telefono ? "Teléfono: " + telefono + "<br>" : "") +
+      (descuentoDuoc ? "Beneficio: descuento Duoc 20% registrado.<br>" : "") +
+      '<br><a href="login.html">Ir a iniciar sesión</a>',
   );
 
   document.getElementById("formularioRegistro")?.reset();
@@ -239,6 +296,71 @@ function registrarUsuario() {
   }
 
   return false;
+}
+
+function actualizarHeaderUsuario() {
+  const contenedoresUsuario = document.querySelectorAll("header .container.py-2 .text-end");
+  const usuario = obtenerUsuarioActivo();
+
+  contenedoresUsuario.forEach((contenedor) => {
+    if (!usuario) {
+      contenedor.innerHTML = `
+        <a href="login.html">Iniciar sesión</a>
+        <span>|</span>
+        <a href="registro.html">Registrar usuario</a>
+      `;
+      return;
+    }
+
+    contenedor.innerHTML = `
+      <div class="dropdown user-session d-inline-block">
+        <button class="btn btn-sm dropdown-toggle user-session-btn"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <span class="user-avatar">${obtenerIniciales(usuario.nombre)}</span>
+          <span>Hola, ${usuario.nombre.split(" ")[0]}</span>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end user-session-menu">
+          <li>
+            <button class="dropdown-item" type="button" onclick="editarPerfil()">
+              Editar perfil
+            </button>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <button class="dropdown-item text-danger" type="button" onclick="cerrarSesion()">
+              Cerrar sesión
+            </button>
+          </li>
+        </ul>
+      </div>
+    `;
+  });
+}
+
+function editarPerfil() {
+  const usuario = obtenerUsuarioActivo();
+
+  if (!usuario) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  alert(
+    `Perfil de ${usuario.nombre}\n\n` +
+      `Correo: ${usuario.email}\n` +
+      `Región: ${usuario.region || "No registrada"}\n` +
+      `Comuna: ${usuario.comuna || "No registrada"}\n\n` +
+      "La edición completa del perfil quedará preparada para una próxima vista.",
+  );
+}
+
+function cerrarSesion() {
+  localStorage.removeItem("usuarioActivo");
+  actualizarHeaderUsuario();
+  window.location.href = "index.html";
 }
 
 const productos = [
@@ -354,6 +476,98 @@ const cartTotalFinal = document.getElementById("cart-total-final");
 const codigoDescuento = document.getElementById("codigo-descuento");
 const aplicarDescuentoBtn = document.getElementById("aplicar-descuento");
 const mensajeDescuento = document.getElementById("mensaje-descuento");
+const filtroCategoria = document.getElementById("filtro-categoria");
+const filtroPrecio = document.getElementById("filtro-precio");
+const detalleProducto = document.getElementById("detalle-producto");
+const productosSimilares = document.getElementById("productos-similares");
+
+function obtenerProductosFiltrados() {
+  let productosFiltrados = [...productos];
+
+  if (filtroCategoria && filtroCategoria.value !== "") {
+    productosFiltrados = productosFiltrados.filter(
+      (producto) => producto.categoria === filtroCategoria.value,
+    );
+  }
+
+  if (filtroPrecio) {
+    if (filtroPrecio.value === "menor-mayor") {
+      productosFiltrados.sort((a, b) => a.precio - b.precio);
+    }
+
+    if (filtroPrecio.value === "mayor-menor") {
+      productosFiltrados.sort((a, b) => b.precio - a.precio);
+    }
+  }
+
+  return productosFiltrados;
+}
+
+function cargarFiltrosProductos() {
+  if (!filtroCategoria) {
+    return;
+  }
+
+  const categorias = [...new Set(productos.map((producto) => producto.categoria))];
+
+  categorias.forEach((categoria) => {
+    const option = document.createElement("option");
+    option.value = categoria;
+    option.textContent = categoria;
+    filtroCategoria.appendChild(option);
+  });
+
+  filtroCategoria.addEventListener("change", mostrarProductos);
+
+  if (filtroPrecio) {
+    filtroPrecio.addEventListener("change", mostrarProductos);
+  }
+}
+
+function crearCardProducto(producto) {
+  const div = document.createElement("div");
+
+  div.className = "col-12 col-sm-6 col-lg-4";
+
+  div.innerHTML = `
+    <div class="card h-100 product-card">
+
+      <a href="detalle-producto.html?id=${producto.id}"
+         class="product-image-link"
+         aria-label="Ver detalle de ${producto.nombre}">
+        <img src="${producto.imagen}"
+             class="card-img-top"
+             alt="${producto.nombre}">
+      </a>
+
+      <div class="card-body d-flex flex-column">
+
+        <h5 class="card-title">
+          ${producto.nombre}
+        </h5>
+
+        <p class="card-text mb-2">
+          ${producto.categoria}
+        </p>
+
+        <p class="product-price fw-bold mb-3">
+          $${producto.precio.toLocaleString("es-CL")}
+        </p>
+
+        <button
+          type="button"
+          class="btn btn-outline-dark mt-auto"
+          onclick="agregarAlCarrito('${producto.id}')">
+          Agregar al carrito
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+  return div;
+}
 
 function mostrarProductos() {
   if (!productList) {
@@ -362,67 +576,184 @@ function mostrarProductos() {
 
   productList.innerHTML = "";
 
-  productos.forEach((producto) => {
-    const div = document.createElement("div");
+  const limite = Number(productList.dataset.limit) || productos.length;
+  const productosAMostrar = obtenerProductosFiltrados().slice(0, limite);
 
-    div.className = "col-12 col-sm-6 col-lg-4";
+  if (productosAMostrar.length === 0) {
+    productList.innerHTML = '<p class="text-muted">No se encontraron productos con los filtros seleccionados.</p>';
+    return;
+  }
 
-    div.innerHTML = `
-      <div class="card h-100">
-
-        <img src="${producto.imagen}"
-             class="card-img-top"
-             alt="${producto.nombre}">
-
-        <div class="card-body">
-
-          <h5 class="card-title">
-            ${producto.nombre}
-          </h5>
-
-          <p class="card-text">
-            ${producto.categoria}
-          </p>
-
-          <p class="fw-bold">
-            $${producto.precio.toLocaleString("es-CL")}
-          </p>
-
-          <button
-            type="button"
-            class="btn btn-outline-dark"
-            onclick="agregarAlCarrito('${producto.id}')">
-            Agregar al carrito
-          </button>
-
-        </div>
-
-      </div>
-    `;
-
-    productList.appendChild(div);
+  productosAMostrar.forEach((producto) => {
+    productList.appendChild(crearCardProducto(producto));
   });
 }
 
-function agregarAlCarrito(id) {
+function agregarAlCarrito(id, cantidad = 1) {
   const producto = productos.find((p) => p.id === id);
 
   if (!producto) {
     return;
   }
 
-  const item = carrito.find((i) => i.id === id);
+  const cantidadNumerica = Number(cantidad) || 1;
+  const cantidadAgregar = Math.max(1, cantidadNumerica);
+  const item = carrito.find((p) => p.id === id);
 
   if (item) {
-    item.cantidad += 1;
+    item.cantidad += cantidadAgregar;
   } else {
-    carrito.push({
-      ...producto,
-      cantidad: 1,
-    });
+    carrito.push({ ...producto, cantidad: cantidadAgregar });
   }
 
   sincronizarCarrito();
+}
+
+function obtenerProductoDesdeUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  return productos.find((producto) => producto.id === id) || null;
+}
+
+function mostrarDetalleProducto() {
+  if (!detalleProducto) {
+    return;
+  }
+
+  const producto = obtenerProductoDesdeUrl();
+
+  if (!producto) {
+    detalleProducto.innerHTML = `
+      <div class="alert alert-warning">
+        No se encontró el producto solicitado.
+        <a href="productos.html" class="alert-link">Volver a productos</a>.
+      </div>
+    `;
+    return;
+  }
+
+  document.title = `${producto.nombre} - Level-Up Gamer`;
+
+  detalleProducto.innerHTML = `
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb lug-breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="productos.html">Productos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">${producto.nombre}</li>
+      </ol>
+    </nav>
+
+    <div class="card product-detail-card">
+      <div class="row g-0">
+        <div class="col-lg-6">
+          <img src="${producto.imagen}"
+               class="img-fluid product-detail-img"
+               alt="${producto.nombre}">
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-body p-4 p-lg-5">
+            <p class="text-muted mb-2">${producto.categoria} · ${producto.id}</p>
+            <h1 class="h2 mb-3">${producto.nombre}</h1>
+            <p class="product-price fs-3 fw-bold mb-4">
+              $${producto.precio.toLocaleString("es-CL")}
+            </p>
+
+            <hr class="detail-divider">
+
+            <p class="text-muted mb-4">
+              ${producto.descripcion}
+            </p>
+
+            <hr class="detail-divider">
+
+            <label for="cantidad-producto" class="form-label fw-bold">
+              Cantidad
+            </label>
+            <select id="cantidad-producto" class="form-select detail-quantity mb-4">
+              ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                .map((cantidad) => `<option value="${cantidad}">${cantidad}</option>`)
+                .join("")}
+            </select>
+
+            <button type="button"
+                    class="btn btn-success btn-lg"
+                    onclick="agregarDetalleAlCarrito('${producto.id}')">
+              Añadir al carrito
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  mostrarProductosSimilares(producto);
+}
+
+function agregarDetalleAlCarrito(id) {
+  const cantidadSelect = document.getElementById("cantidad-producto");
+  const cantidad = Number(cantidadSelect?.value) || 1;
+
+  agregarAlCarrito(id, cantidad);
+}
+
+function mostrarProductosSimilares(productoActual) {
+  if (!productosSimilares) {
+    return;
+  }
+
+  const similares = productos
+    .filter(
+      (producto) =>
+        producto.categoria === productoActual.categoria && producto.id !== productoActual.id,
+    )
+    .slice(0, 6);
+
+  if (similares.length === 0) {
+    productosSimilares.innerHTML = "";
+    return;
+  }
+
+  productosSimilares.innerHTML = `
+    <h2 class="h3 mb-4">Productos similares (${productoActual.categoria})</h2>
+
+    <div id="carouselProductosSimilares" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        ${similares
+          .map(
+            (producto, index) => `
+              <div class="carousel-item ${index === 0 ? "active" : ""}">
+                <div class="card similar-product-card mx-auto">
+                  <a href="detalle-producto.html?id=${producto.id}" class="product-image-link">
+                    <img src="${producto.imagen}"
+                         class="card-img-top"
+                         alt="${producto.nombre}">
+                  </a>
+                  <div class="card-body text-center">
+                    <h3 class="h6 card-title">${producto.nombre}</h3>
+                    <p class="product-price fw-bold mb-0">
+                      $${producto.precio.toLocaleString("es-CL")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            `,
+          )
+          .join("")}
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselProductosSimilares" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselProductosSimilares" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+    </div>
+  `;
 }
 
 function guardarCarrito() {
@@ -569,9 +900,9 @@ function mostrarResumenCarrito() {
   const total = calcularTotalCarrito();
 
   cartList.innerHTML += `
-    <h3 class="h5 text-end mb-0">
-      Total: $${total.toLocaleString("es-CL")}
-    </h3>
+    <p class="cart-summary-total text-end mb-0">
+      Total: <span>$${total.toLocaleString("es-CL")}</span>
+    </p>
   `;
 }
 
@@ -759,7 +1090,10 @@ function pagarCarrito() {
   alert(`Compra simulada por $${totalFinal.toLocaleString("es-CL")}.`);
 }
 
+actualizarHeaderUsuario();
+cargarFiltrosProductos();
 mostrarProductos();
+mostrarDetalleProducto();
 mostrarCarrito();
 actualizarContadorCarrito();
 actualizarResumenCompra();

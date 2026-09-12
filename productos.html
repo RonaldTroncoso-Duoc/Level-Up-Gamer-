@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Level-Up Gamer</title>
+    <title>Productos - Level-Up Gamer</title>
     <link rel="icon"
           type="image/png"
           href="img/LOGO-LEVEL-UP-GAMER.png">
@@ -27,11 +27,6 @@
 
 
 <body>
-
-
-    <!-- ========================================= -->
-    <!-- HEADER -->
-    <!-- ========================================= -->
 
     <header>
 
@@ -69,14 +64,14 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                         <li class="nav-item">
-                            <a class="nav-link active"
+                            <a class="nav-link"
                                href="index.html">
                                 Inicio
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link"
+                            <a class="nav-link active"
                                href="productos.html">
                                 Productos
                             </a>
@@ -143,158 +138,74 @@
 
     </header>
 
-
-
-    <!-- ========================================= -->
-    <!-- CONTENIDO PRINCIPAL -->
-    <!-- ========================================= -->
-
     <main>
-
-
-        <!-- ===================================== -->
-        <!-- PORTADA PRINCIPAL DE LA PAG -->
-        <!-- ===================================== -->
-
-        <section class="container my-4">
-
-            <div class="row align-items-center bg-light p-4">
-
-
-                <!-- Texto -->
-
-                <div class="col-md-6">
-
-                    <h1>
-                        LEVEL-UP GAMER
-                    </h1>
-
-                    <p>
-                        Todo lo que necesitas para llevar
-                        tu experiencia gamer al siguiente nivel.
-                    </p>
-
-                    <a href="productos.html"
-                       class="btn btn-dark">
-
-                        Ver productos
-
-                    </a>
-
-                </div>
-
-
-                <!-- Imagen -->
-
-                <div class="col-md-6 mt-4 mt-md-0 text-center">
-
-                    <img src="img/IMG-LEVEL-UP-GAMER.png"
-                        class="img-fluid"
-                        alt="Level-Up Gamer"
-                        width="300">
-
-                </div>
-
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ===================================== -->
-        <!-- PRODUCTOS Y RESUMEN DEL CARRITO -->
-        <!-- ===================================== -->
 
         <section class="container my-5">
 
+            <div class="mb-4">
+                <h1>Productos</h1>
+                <p class="text-muted mb-0">
+                    Explora el catálogo completo de Level-Up Gamer y filtra según tus preferencias.
+                </p>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label for="filtro-categoria" class="form-label fw-bold">Filtrar por categoría</label>
+                            <select id="filtro-categoria" class="form-select">
+                                <option value="">Todas las categorías</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="filtro-precio" class="form-label fw-bold">Ordenar por precio</label>
+                            <select id="filtro-precio" class="form-select">
+                                <option value="">Sin ordenar</option>
+                                <option value="menor-mayor">Menor a mayor</option>
+                                <option value="mayor-menor">Mayor a menor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row g-4">
-
-                <!-- Productos disponibles -->
                 <div class="col-lg-8">
-
-                    <div class="mb-4">
-
-                        <h2>
-                            Productos destacados
-                        </h2>
-
-                        <p class="text-muted mb-0">
-                            Catálogo generado dinámicamente desde JavaScript.
-                        </p>
-
-                    </div>
-
-
-                    <div id="product-list"
-                         class="row g-4"
-                         data-limit="12">
-
+                    <div id="product-list" class="row g-4">
                         <!-- Los productos se cargarán aquí desde js/script.js -->
-
                     </div>
-
                 </div>
 
-
-                <!-- Resumen rápido del carrito -->
                 <aside class="col-lg-4">
-
                     <div class="card position-sticky top-0">
-
                         <div class="card-header bg-dark text-white">
-
-                            <h2 class="h4 mb-0">
-                                🛒 Resumen del carrito
-                            </h2>
-
+                            <h2 class="h4 mb-0">🛒 Resumen del carrito</h2>
                         </div>
 
                         <div class="card-body">
-
                             <div id="cart-list">
-
                                 <!-- Los productos agregados al carrito se cargarán aquí desde js/script.js -->
-
                             </div>
 
                             <div class="d-grid gap-2 mt-3">
-
-                                <button type="button"
-                                        class="btn btn-outline-danger"
-                                        onclick="vaciarCarrito()">
-
+                                <button type="button" class="btn btn-outline-danger" onclick="vaciarCarrito()">
                                     Vaciar carrito
-
                                 </button>
 
-                                <a href="carrito.html"
-                                   class="btn btn-dark">
-
+                                <a href="carrito.html" class="btn btn-dark">
                                     Ir al carrito
-
                                 </a>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </aside>
-
             </div>
 
         </section>
 
-
     </main>
-
-
-
-    <!-- ========================================= -->
-    <!-- FOOTER -->
-    <!-- ========================================= -->
 
     <footer class="bg-dark text-white mt-5">
 
@@ -403,8 +314,6 @@
         </div>
 
     </footer>
-
-
 
     <!-- Bootstrap JavaScript -->
 
