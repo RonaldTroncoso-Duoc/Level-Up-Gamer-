@@ -1,0 +1,308 @@
+/* =========================================================
+   LEVEL-UP GAMER - ESTILOS BASE EV1
+   Paleta gamer juvenil, compatible con Bootstrap
+   ========================================================= */
+
+:root {
+  --lug-bg: #070914;
+  --lug-bg-soft: #101426;
+  --lug-card: #151a2e;
+  --lug-card-light: #ffffff;
+  --lug-primary: #7c3cff;
+  --lug-secondary: #00e5ff;
+  --lug-accent: #39ff88;
+  --lug-danger: #ff4d6d;
+  --lug-warning: #ffd166;
+  --lug-text: #f5f7ff;
+  --lug-muted: #aab3d1;
+  --lug-border: rgba(124, 60, 255, 0.28);
+  --lug-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(124, 60, 255, 0.22), transparent 34rem),
+    radial-gradient(circle at top right, rgba(0, 229, 255, 0.16), transparent 28rem),
+    linear-gradient(180deg, #070914 0%, #0c1020 45%, #080a14 100%);
+  color: var(--lug-text);
+}
+
+a {
+  color: var(--lug-secondary);
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+a:hover {
+  color: var(--lug-accent);
+}
+
+.navbar.bg-dark,
+footer.bg-dark {
+  background: rgba(7, 9, 20, 0.96) !important;
+  border-bottom: 1px solid var(--lug-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+
+.navbar-brand img {
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.35));
+}
+
+.navbar-brand,
+.navbar-dark .navbar-nav .nav-link {
+  letter-spacing: 0.03em;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+  color: var(--lug-accent);
+}
+
+header .container.py-2 {
+  color: var(--lug-muted);
+}
+
+main {
+  color: var(--lug-text);
+}
+
+.bg-light {
+  background:
+    linear-gradient(135deg, rgba(21, 26, 46, 0.96), rgba(18, 22, 40, 0.88)) !important;
+  color: var(--lug-text);
+  border: 1px solid var(--lug-border);
+  border-radius: 1.2rem;
+  box-shadow: var(--lug-shadow);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+.navbar-brand {
+  font-weight: 800;
+}
+
+h1,
+h2 {
+  text-shadow: 0 0 20px rgba(124, 60, 255, 0.35);
+}
+
+.text-muted {
+  color: var(--lug-muted) !important;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  color: #172033;
+  border: 1px solid rgba(124, 60, 255, 0.18);
+  border-radius: 1rem;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 229, 255, 0.55);
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.3);
+}
+
+.card-img-top {
+  height: 190px;
+  object-fit: cover;
+  background: #0c1020;
+}
+
+.card-header.bg-dark {
+  background: linear-gradient(135deg, #11162a, #25104d) !important;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+.btn {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.btn-dark {
+  background: linear-gradient(135deg, var(--lug-primary), #4d20bf);
+  border: none;
+  box-shadow: 0 0 18px rgba(124, 60, 255, 0.3);
+}
+
+.btn-dark:hover {
+  background: linear-gradient(135deg, var(--lug-secondary), var(--lug-primary));
+}
+
+.btn-outline-dark {
+  color: #21163f;
+  border-color: var(--lug-primary);
+}
+
+.btn-outline-dark:hover {
+  background: var(--lug-primary);
+  border-color: var(--lug-primary);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #14b86a, var(--lug-accent));
+  border: none;
+  color: #06120c;
+}
+
+.btn-outline-danger {
+  border-color: var(--lug-danger);
+  color: var(--lug-danger);
+}
+
+.btn-outline-danger:hover {
+  background: var(--lug-danger);
+  border-color: var(--lug-danger);
+}
+
+.cart-item {
+  color: #172033;
+}
+
+.position-sticky.top-0 {
+  top: 1rem !important;
+}
+
+/* =========================================================
+   Formularios Login / Registro
+   ========================================================= */
+
+.auth-main {
+  min-height: calc(100vh - 260px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  background: rgba(15, 20, 38, 0.94);
+  border: 1px solid var(--lug-border);
+  border-radius: 1.4rem;
+  box-shadow: var(--lug-shadow), 0 0 32px rgba(124, 60, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.auth-card.auth-card-lg {
+  max-width: 720px;
+}
+
+.auth-logo {
+  width: 86px;
+  height: 86px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.45));
+}
+
+.auth-title {
+  color: var(--lug-text);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-card label,
+.auth-card .form-label {
+  color: var(--lug-text);
+  font-weight: 700;
+}
+
+.auth-card .form-control,
+.auth-card .form-select,
+.card .form-control,
+.card .form-select {
+  border-radius: 0.85rem;
+  border: 1px solid rgba(124, 60, 255, 0.28);
+}
+
+.auth-card .form-control,
+.auth-card .form-select {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.auth-card .form-control:focus,
+.auth-card .form-select:focus,
+.card .form-control:focus {
+  border-color: var(--lug-secondary);
+  box-shadow: 0 0 0 0.25rem rgba(0, 229, 255, 0.18);
+}
+
+.error,
+.exito {
+  border-radius: 0.9rem;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  font-weight: 700;
+}
+
+.error {
+  background: rgba(255, 77, 109, 0.12);
+  border: 1px solid rgba(255, 77, 109, 0.55);
+  color: #ffb3c0;
+}
+
+.exito {
+  background: rgba(57, 255, 136, 0.12);
+  border: 1px solid rgba(57, 255, 136, 0.55);
+  color: #b8ffd3;
+}
+
+#mensajes:empty {
+  display: none;
+}
+
+/* =========================================================
+   Carrito detallado
+   ========================================================= */
+
+#cart-list[data-cart-view="page"] .card img {
+  min-height: 170px;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  background: #0c1020;
+}
+
+#cart-list[data-cart-view="page"] .card {
+  border-left: 4px solid var(--lug-primary);
+}
+
+footer a {
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 991px) {
+  .position-sticky.top-0 {
+    position: static !important;
+  }
+
+  .card-img-top {
+    height: 220px;
+  }
+}
+
+@media (max-width: 575px) {
+  .auth-card {
+    padding: 1.4rem;
+  }
+
+  .card-img-top {
+    height: 180px;
+  }
+}
