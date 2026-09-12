@@ -290,8 +290,14 @@ const productos = [
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
 const productList = document.getElementById("product-list");
+const cartList = document.getElementById("cart-list");
+const cartCount = document.getElementById("cart-count");
 
 function mostrarProductos() {
+  if (!productList) {
+    return;
+  }
+
   productList.innerHTML = "";
 
   productos.forEach((producto) => {
@@ -321,6 +327,7 @@ function mostrarProductos() {
           </p>
 
           <button
+            type="button"
             class="btn btn-outline-dark"
             onclick="agregarAlCarrito('${producto.id}')">
             Agregar al carrito
@@ -350,51 +357,82 @@ function agregarAlCarrito(id) {
 
   guardarCarrito();
   mostrarCarrito();
+  actualizarContadorCarrito();
 }
 
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-const cartList = document.getElementById("cart-list");
+function actualizarContadorCarrito() {
+  if (!cartCount) {
+    return;
+  }
+
+  const cantidadTotal = carrito.reduce((total, item) => total + item.cantidad, 0);
+
+  cartCount.textContent = cantidadTotal;
+}
 
 function mostrarCarrito() {
+  if (!cartList) {
+    actualizarContadorCarrito();
+    return;
+  }
+
   cartList.innerHTML = "";
 
   if (carrito.length === 0) {
-    cartList.innerHTML = "<p>El carrito está vacío.</p>";
+    cartList.innerHTML = '<p class="text-muted mb-0">El carrito está vacío.</p>';
+    actualizarContadorCarrito();
     return;
   }
 
   carrito.forEach((item) => {
     const div = document.createElement("div");
 
-    div.className = "cart-item";
+    div.className = "cart-item border-bottom pb-3 mb-3";
 
     div.innerHTML = `
-      <strong>${item.nombre}</strong><br>
+      <strong class="d-block mb-1">${item.nombre}</strong>
 
-      Precio:
-      $${item.precio.toLocaleString("es-CL")}
+      <small class="text-muted d-block mb-2">
+        Precio: $${item.precio.toLocaleString("es-CL")}
+      </small>
 
-      x ${item.cantidad}
+      <div class="d-flex align-items-center justify-content-between gap-2">
 
-      =
-      $${(item.precio * item.cantidad).toLocaleString("es-CL")}
+        <div class="btn-group btn-group-sm" role="group" aria-label="Modificar cantidad">
 
-      <br>
+          <button type="button"
+                  class="btn btn-outline-secondary"
+                  onclick="disminuirCantidad('${item.id}')">
+            -
+          </button>
 
-      <button onclick="agregarAlCarrito('${item.id}')">
-        +
-      </button>
+          <span class="btn btn-outline-secondary disabled">
+            ${item.cantidad}
+          </span>
 
-      <button onclick="disminuirCantidad('${item.id}')">
-        -
-      </button>
+          <button type="button"
+                  class="btn btn-outline-secondary"
+                  onclick="agregarAlCarrito('${item.id}')">
+            +
+          </button>
 
-      <button onclick="eliminarDelCarrito('${item.id}')">
-        Eliminar
-      </button>
+        </div>
+
+        <button type="button"
+                class="btn btn-sm btn-outline-danger"
+                onclick="eliminarDelCarrito('${item.id}')">
+          Eliminar
+        </button>
+
+      </div>
+
+      <p class="fw-bold mb-0 mt-2">
+        Subtotal: $${(item.precio * item.cantidad).toLocaleString("es-CL")}
+      </p>
     `;
 
     cartList.appendChild(div);
@@ -406,10 +444,12 @@ function mostrarCarrito() {
   );
 
   cartList.innerHTML += `
-    <h3>
+    <h3 class="h5 text-end mb-0">
       Total: $${total.toLocaleString("es-CL")}
     </h3>
   `;
+
+  actualizarContadorCarrito();
 }
 
 function disminuirCantidad(id) {
@@ -424,6 +464,7 @@ function disminuirCantidad(id) {
 
     guardarCarrito();
     mostrarCarrito();
+    actualizarContadorCarrito();
   }
 }
 
@@ -432,6 +473,7 @@ function eliminarDelCarrito(id) {
 
   guardarCarrito();
   mostrarCarrito();
+  actualizarContadorCarrito();
 }
 
 function vaciarCarrito() {
@@ -439,7 +481,9 @@ function vaciarCarrito() {
 
   guardarCarrito();
   mostrarCarrito();
+  actualizarContadorCarrito();
 }
 
 mostrarProductos();
 mostrarCarrito();
+actualizarContadorCarrito();
