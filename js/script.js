@@ -1,9 +1,21 @@
 const regionesComunas = {
-  "Región Metropolitana": ["Santiago", "Providencia", "Maipú", "La Florida", "Puente Alto"],
-  "Valparaíso": ["Valparaíso", "Viña del Mar", "Quilpué", "Villa Alemana", "San Antonio"],
-  "Biobío": ["Concepción", "Talcahuano", "Los Ángeles", "Coronel", "Chiguayante"],
+  "Región Metropolitana": [
+    "Santiago",
+    "Providencia",
+    "Maipú",
+    "La Florida",
+    "Puente Alto",
+  ],
+  Valparaíso: [
+    "Valparaíso",
+    "Viña del Mar",
+    "Quilpué",
+    "Villa Alemana",
+    "San Antonio",
+  ],
+  Biobío: ["Concepción", "Talcahuano", "Los Ángeles", "Coronel", "Chiguayante"],
   "La Araucanía": ["Temuco", "Padre Las Casas", "Villarrica", "Angol", "Pucón"],
-  "Antofagasta": ["Antofagasta", "Calama", "Tocopilla", "Mejillones", "Taltal"],
+  Antofagasta: ["Antofagasta", "Calama", "Tocopilla", "Mejillones", "Taltal"],
 };
 
 function obtenerMensajes() {
@@ -79,18 +91,21 @@ function guardarUsuarioActivo(usuario) {
 }
 
 function obtenerIniciales(nombre) {
-  return nombre
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte.charAt(0).toUpperCase())
-    .join("") || "UG";
+  return (
+    nombre
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte.charAt(0).toUpperCase())
+      .join("") || "UG"
+  );
 }
 
 function validarLogin() {
   const errores = [];
 
-  const email = document.getElementById("email")?.value.trim().toLowerCase() || "";
+  const email =
+    document.getElementById("email")?.value.trim().toLowerCase() || "";
   const password = document.getElementById("password")?.value.trim() || "";
 
   if (!email && !password) {
@@ -115,11 +130,9 @@ function validarLogin() {
   const emailRegex = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/;
 
   if (email !== "" && !emailRegex.test(email)) {
-    errores.push("El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.");
-  }
-
-  if (password.length < 4 || password.length > 10) {
-    errores.push("La contraseña debe tener entre 4 y 10 caracteres.");
+    errores.push(
+      "El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.",
+    );
   }
 
   if (errores.length > 0) {
@@ -166,7 +179,9 @@ function validarLogin() {
     descuentoDuoc: usuarioPorCorreo.descuentoDuoc,
   });
 
-  mostrarExito(`✅ Inicio de sesión correcto. Bienvenido, ${usuarioPorCorreo.nombre}.`);
+  mostrarExito(
+    `✅ Inicio de sesión correcto. Bienvenido, ${usuarioPorCorreo.nombre}.`,
+  );
   actualizarHeaderUsuario();
 
   setTimeout(() => {
@@ -180,16 +195,29 @@ function registrarUsuario() {
   const errores = [];
 
   const nombre = document.getElementById("nombre")?.value.trim() || "";
-  const fechaNacimientoTexto = document.getElementById("fechaNacimiento")?.value || "";
-  const email = document.getElementById("email")?.value.trim().toLowerCase() || "";
+  const fechaNacimientoTexto =
+    document.getElementById("fechaNacimiento")?.value || "";
+  const email =
+    document.getElementById("email")?.value.trim().toLowerCase() || "";
   const password = document.getElementById("password")?.value.trim() || "";
-  const confirmPassword = document.getElementById("confirmPassword")?.value.trim() || "";
+  const confirmPassword =
+    document.getElementById("confirmPassword")?.value.trim() || "";
   const telefono = document.getElementById("telefono")?.value.trim() || "";
   const region = document.getElementById("region")?.value || "";
   const comuna = document.getElementById("comuna")?.value || "";
 
-  const camposObligatorios = [nombre, fechaNacimientoTexto, email, password, confirmPassword, region, comuna];
-  const todosLosCamposObligatoriosVacios = camposObligatorios.every((campo) => campo === "");
+  const camposObligatorios = [
+    nombre,
+    fechaNacimientoTexto,
+    email,
+    password,
+    confirmPassword,
+    region,
+    comuna,
+  ];
+  const todosLosCamposObligatoriosVacios = camposObligatorios.every(
+    (campo) => campo === "",
+  );
 
   if (todosLosCamposObligatoriosVacios) {
     errores.push("Por favor, completa todos los campos obligatorios.");
@@ -230,7 +258,9 @@ function registrarUsuario() {
   } else if (email.length > 100) {
     errores.push("El correo no puede superar los 100 caracteres.");
   } else if (!emailRegex.test(email)) {
-    errores.push("El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.");
+    errores.push(
+      "El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com.",
+    );
   }
 
   if (password === "" || confirmPassword === "") {
@@ -266,7 +296,8 @@ function registrarUsuario() {
     return false;
   }
 
-  const descuentoDuoc = email.endsWith("@duoc.cl") || email.endsWith("@profesor.duoc.cl");
+  const descuentoDuoc =
+    email.endsWith("@duoc.cl") || email.endsWith("@profesor.duoc.cl");
 
   const nuevoUsuario = {
     id: Date.now(),
@@ -314,7 +345,9 @@ function registrarUsuario() {
 }
 
 function actualizarHeaderUsuario() {
-  const contenedoresUsuario = document.querySelectorAll("header .container.py-2 .text-end");
+  const contenedoresUsuario = document.querySelectorAll(
+    "header .container.py-2 .text-end",
+  );
   const usuario = obtenerUsuarioActivo();
 
   contenedoresUsuario.forEach((contenedor) => {
@@ -394,7 +427,8 @@ const productos = [
     nombre: "Carcassonne",
     categoria: "Juegos de Mesa",
     precio: 24990,
-    imagen: "img/img-productos/img-juegos-de-mesa/CARCASSONNE-LEVEL-UP-GAMER.jpg",
+    imagen:
+      "img/img-productos/img-juegos-de-mesa/CARCASSONNE-LEVEL-UP-GAMER.jpg",
     descripcion:
       "Un juego de colocación de fichas donde los jugadores construyen el paisaje alrededor de la fortaleza medieval de Carcassonne. Ideal para 2-5 jugadores y fácil de aprender.",
   },
@@ -444,7 +478,8 @@ const productos = [
     nombre: "Silla Gamer Secretlab Titan",
     categoria: "Sillas Gamers",
     precio: 349990,
-    imagen: "img/img-productos/img-accesorios/SILLA-GAMER-Secretlab-TITAN-LEVEL-UP-GAMER.jpg",
+    imagen:
+      "img/img-productos/img-accesorios/SILLA-GAMER-Secretlab-TITAN-LEVEL-UP-GAMER.jpg",
     descripcion:
       "Diseñada para el máximo confort, esta silla ofrece un soporte ergonómico y personalización ajustable para sesiones de juego prolongadas.",
   },
@@ -454,7 +489,8 @@ const productos = [
     nombre: "Mouse Gamer Logitech G502 HERO",
     categoria: "Mouse",
     precio: 49990,
-    imagen: "img/img-productos/img-accesorios/MOUSE-Logitech-G502-LEVEL-UP-GAMER.jpg",
+    imagen:
+      "img/img-productos/img-accesorios/MOUSE-Logitech-G502-LEVEL-UP-GAMER.jpg",
     descripcion:
       "Con sensor de alta precisión y botones personalizables, este mouse es ideal para gamers que buscan un control preciso y personalización.",
   },
@@ -464,7 +500,8 @@ const productos = [
     nombre: "Mousepad Razer Goliathus Extended Chroma",
     categoria: "Mousepad",
     precio: 29990,
-    imagen: "img/img-productos/img-accesorios/MOUSEPAD-GAMER-Razer-Goliathus-LEVEL-UP-GAMER.png",
+    imagen:
+      "img/img-productos/img-accesorios/MOUSEPAD-GAMER-Razer-Goliathus-LEVEL-UP-GAMER.png",
     descripcion:
       "Ofrece un área de juego amplia con iluminación RGB personalizable, asegurando una superficie suave y uniforme para el movimiento del mouse.",
   },
@@ -481,7 +518,8 @@ const productos = [
 ];
 
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-let descuentoAplicado = JSON.parse(localStorage.getItem("descuentoAplicado")) || null;
+let descuentoAplicado =
+  JSON.parse(localStorage.getItem("descuentoAplicado")) || null;
 
 const productList = document.getElementById("product-list");
 const cartList = document.getElementById("cart-list");
@@ -523,7 +561,9 @@ function cargarFiltrosProductos() {
     return;
   }
 
-  const categorias = [...new Set(productos.map((producto) => producto.categoria))];
+  const categorias = [
+    ...new Set(productos.map((producto) => producto.categoria)),
+  ];
 
   categorias.forEach((categoria) => {
     const option = document.createElement("option");
@@ -595,7 +635,8 @@ function mostrarProductos() {
   const productosAMostrar = obtenerProductosFiltrados().slice(0, limite);
 
   if (productosAMostrar.length === 0) {
-    productList.innerHTML = '<p class="text-muted">No se encontraron productos con los filtros seleccionados.</p>';
+    productList.innerHTML =
+      '<p class="text-muted">No se encontraron productos con los filtros seleccionados.</p>';
     return;
   }
 
@@ -688,7 +729,10 @@ function mostrarDetalleProducto() {
             </label>
             <select id="cantidad-producto" class="form-select detail-quantity mb-4">
               ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-                .map((cantidad) => `<option value="${cantidad}">${cantidad}</option>`)
+                .map(
+                  (cantidad) =>
+                    `<option value="${cantidad}">${cantidad}</option>`,
+                )
                 .join("")}
             </select>
 
@@ -721,7 +765,8 @@ function mostrarProductosSimilares(productoActual) {
   const similares = productos
     .filter(
       (producto) =>
-        producto.categoria === productoActual.categoria && producto.id !== productoActual.id,
+        producto.categoria === productoActual.categoria &&
+        producto.id !== productoActual.id,
     )
     .slice(0, 6);
 
@@ -794,7 +839,10 @@ function actualizarContadorCarrito() {
     return;
   }
 
-  const cantidadTotal = carrito.reduce((total, item) => total + item.cantidad, 0);
+  const cantidadTotal = carrito.reduce(
+    (total, item) => total + item.cantidad,
+    0,
+  );
 
   cartCount.textContent = cantidadTotal;
 }
@@ -843,7 +891,8 @@ function mostrarCarrito() {
   cartList.innerHTML = "";
 
   if (carrito.length === 0) {
-    cartList.innerHTML = '<p class="text-muted mb-0">El carrito está vacío.</p>';
+    cartList.innerHTML =
+      '<p class="text-muted mb-0">El carrito está vacío.</p>';
     actualizarContadorCarrito();
     actualizarResumenCompra();
     return;
@@ -1031,7 +1080,8 @@ function reiniciarDescuento() {
   }
 
   if (mensajeDescuento) {
-    mensajeDescuento.textContent = "Códigos disponibles: LEVELUP10, DUOC20 o GAMER5.";
+    mensajeDescuento.textContent =
+      "Códigos disponibles: LEVELUP10, DUOC20 o GAMER5.";
     mensajeDescuento.className = "form-text";
   }
 }
@@ -1048,14 +1098,16 @@ function aplicarDescuento() {
   }
 
   if (descuentoAplicado) {
-    mensajeDescuento.textContent = "Ya aplicaste un cupón de descuento en esta compra.";
+    mensajeDescuento.textContent =
+      "Ya aplicaste un cupón de descuento en esta compra.";
     mensajeDescuento.className = "form-text text-warning";
     aplicarDescuentoBtn.disabled = true;
     return;
   }
 
   if (carrito.length === 0) {
-    mensajeDescuento.textContent = "Agrega productos al carrito antes de aplicar un cupón.";
+    mensajeDescuento.textContent =
+      "Agrega productos al carrito antes de aplicar un cupón.";
     mensajeDescuento.className = "form-text text-danger";
     return;
   }
