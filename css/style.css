@@ -1,22 +1,24 @@
 /* =========================================================
    LEVEL-UP GAMER - ESTILOS BASE EV1
-   Paleta gamer juvenil, compatible con Bootstrap
+   Paleta oficial caso Forma B: negro, azul eléctrico y verde neón
    ========================================================= */
 
 :root {
-  --lug-bg: #070914;
-  --lug-bg-soft: #101426;
-  --lug-card: #151a2e;
+  --lug-bg: #000000;
+  --lug-bg-soft: #0b0f14;
+  --lug-card: #101820;
   --lug-card-light: #ffffff;
-  --lug-primary: #7c3cff;
-  --lug-secondary: #00e5ff;
-  --lug-accent: #39ff88;
+  --lug-primary: #1E90FF;
+  --lug-secondary: #39FF14;
+  --lug-accent: #39FF14;
   --lug-danger: #ff4d6d;
   --lug-warning: #ffd166;
-  --lug-text: #f5f7ff;
-  --lug-muted: #aab3d1;
-  --lug-border: rgba(124, 60, 255, 0.28);
+  --lug-text: #FFFFFF;
+  --lug-muted: #D3D3D3;
+  --lug-border: rgba(30, 144, 255, 0.35);
   --lug-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  --lug-font-main: "Roboto", Arial, sans-serif;
+  --lug-font-heading: "Orbitron", "Roboto", Arial, sans-serif;
 }
 
 * {
@@ -25,10 +27,11 @@
 
 body {
   min-height: 100vh;
+  font-family: var(--lug-font-main);
   background:
-    radial-gradient(circle at top left, rgba(124, 60, 255, 0.22), transparent 34rem),
-    radial-gradient(circle at top right, rgba(0, 229, 255, 0.16), transparent 28rem),
-    linear-gradient(180deg, #070914 0%, #0c1020 45%, #080a14 100%);
+    radial-gradient(circle at top left, rgba(30, 144, 255, 0.20), transparent 34rem),
+    radial-gradient(circle at top right, rgba(57, 255, 20, 0.12), transparent 28rem),
+    linear-gradient(180deg, #000000 0%, #05080d 45%, #000000 100%);
   color: var(--lug-text);
 }
 
@@ -43,13 +46,13 @@ a:hover {
 
 .navbar.bg-dark,
 footer.bg-dark {
-  background: rgba(7, 9, 20, 0.96) !important;
+  background: rgba(0, 0, 0, 0.96) !important;
   border-bottom: 1px solid var(--lug-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
 }
 
 .navbar-brand img {
-  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.35));
+  filter: drop-shadow(0 0 8px rgba(30, 144, 255, 0.55));
 }
 
 .navbar-brand,
@@ -72,7 +75,7 @@ main {
 
 .bg-light {
   background:
-    linear-gradient(135deg, rgba(21, 26, 46, 0.96), rgba(18, 22, 40, 0.88)) !important;
+    linear-gradient(135deg, rgba(16, 24, 32, 0.96), rgba(0, 0, 0, 0.9)) !important;
   color: var(--lug-text);
   border: 1px solid var(--lug-border);
   border-radius: 1.2rem;
@@ -85,12 +88,13 @@ h3,
 h4,
 h5,
 .navbar-brand {
+  font-family: var(--lug-font-heading);
   font-weight: 800;
 }
 
 h1,
 h2 {
-  text-shadow: 0 0 20px rgba(124, 60, 255, 0.35);
+  text-shadow: 0 0 20px rgba(30, 144, 255, 0.45);
 }
 
 .text-muted {
@@ -100,7 +104,7 @@ h2 {
 .card {
   background: rgba(255, 255, 255, 0.96);
   color: #172033;
-  border: 1px solid rgba(124, 60, 255, 0.18);
+  border: 1px solid rgba(30, 144, 255, 0.22);
   border-radius: 1rem;
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
   overflow: hidden;
@@ -109,7 +113,7 @@ h2 {
 
 .card:hover {
   transform: translateY(-4px);
-  border-color: rgba(0, 229, 255, 0.55);
+  border-color: rgba(30, 144, 255, 0.65);
   box-shadow: 0 20px 42px rgba(0, 0, 0, 0.3);
 }
 
@@ -120,8 +124,8 @@ h2 {
 }
 
 .card-header.bg-dark {
-  background: linear-gradient(135deg, #11162a, #25104d) !important;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+  background: linear-gradient(135deg, #000000, #0b1f35) !important;
+  border-bottom: 1px solid rgba(57, 255, 20, 0.35);
 }
 
 .btn {
@@ -130,17 +134,18 @@ h2 {
 }
 
 .btn-dark {
-  background: linear-gradient(135deg, var(--lug-primary), #4d20bf);
+  background: linear-gradient(135deg, var(--lug-primary), #005bb5);
   border: none;
-  box-shadow: 0 0 18px rgba(124, 60, 255, 0.3);
+  box-shadow: 0 0 18px rgba(30, 144, 255, 0.35);
 }
 
 .btn-dark:hover {
   background: linear-gradient(135deg, var(--lug-secondary), var(--lug-primary));
+  color: #000000;
 }
 
 .btn-outline-dark {
-  color: #21163f;
+  color: #0b1726;
   border-color: var(--lug-primary);
 }
 
@@ -150,9 +155,9 @@ h2 {
 }
 
 .btn-success {
-  background: linear-gradient(135deg, #14b86a, var(--lug-accent));
+  background: linear-gradient(135deg, var(--lug-secondary), #18b800);
   border: none;
-  color: #06120c;
+  color: #000000;
 }
 
 .btn-outline-danger {
@@ -189,10 +194,10 @@ h2 {
   width: 100%;
   max-width: 480px;
   padding: 2rem;
-  background: rgba(15, 20, 38, 0.94);
+  background: rgba(0, 0, 0, 0.92);
   border: 1px solid var(--lug-border);
   border-radius: 1.4rem;
-  box-shadow: var(--lug-shadow), 0 0 32px rgba(124, 60, 255, 0.2);
+  box-shadow: var(--lug-shadow), 0 0 32px rgba(30, 144, 255, 0.22);
   backdrop-filter: blur(10px);
 }
 
@@ -204,7 +209,7 @@ h2 {
   width: 86px;
   height: 86px;
   object-fit: contain;
-  filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.45));
+  filter: drop-shadow(0 0 18px rgba(30, 144, 255, 0.55));
 }
 
 .auth-title {
@@ -224,7 +229,7 @@ h2 {
 .card .form-control,
 .card .form-select {
   border-radius: 0.85rem;
-  border: 1px solid rgba(124, 60, 255, 0.28);
+  border: 1px solid rgba(30, 144, 255, 0.35);
 }
 
 .auth-card .form-control,
@@ -236,7 +241,7 @@ h2 {
 .auth-card .form-select:focus,
 .card .form-control:focus {
   border-color: var(--lug-secondary);
-  box-shadow: 0 0 0 0.25rem rgba(0, 229, 255, 0.18);
+  box-shadow: 0 0 0 0.25rem rgba(57, 255, 20, 0.18);
 }
 
 .error,
