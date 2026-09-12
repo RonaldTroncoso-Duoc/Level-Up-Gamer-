@@ -572,6 +572,26 @@ function cargarFiltrosProductos() {
     filtroCategoria.appendChild(option);
   });
 
+
+  // Obtener la categoría enviada por la URL
+  const parametros = new URLSearchParams(window.location.search);
+  const categoriaURL = parametros.get("categoria");
+
+
+  // Buscar la categoría sin importar mayúsculas o minúsculas
+  if (categoriaURL) {
+
+    const categoriaEncontrada = categorias.find(
+      (categoria) =>
+        categoria.toLowerCase() === categoriaURL.toLowerCase()
+    );
+
+    if (categoriaEncontrada) {
+      filtroCategoria.value = categoriaEncontrada;
+    }
+  }
+
+
   filtroCategoria.addEventListener("change", mostrarProductos);
 
   if (filtroPrecio) {
