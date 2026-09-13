@@ -68,7 +68,7 @@
                     <span>Empleados</span>
                 </a>
 
-                <a href="#" class="admin-menu-link">
+                <a href="#" class="admin-menu-link" data-admin-view="clientes">
                     <span class="admin-menu-icon">🎮</span>
                     <span>Clientes</span>
                 </a>
@@ -467,6 +467,282 @@
                             </div>
                         </form>
                     </aside>
+
+                </div>
+
+            </section>
+
+            <!-- CLIENTES / USUARIOS -->
+
+            <section class="admin-content-panel admin-view-section"
+                    id="admin-view-clientes">
+
+
+                <div class="admin-section-heading">
+
+                    <div>
+                        <h2>Clientes y usuarios</h2>
+
+                        <p>
+                            Administra los usuarios registrados en Level-Up Gamer.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="admin-inventory-layout">
+
+
+                    <!-- LISTADO DE USUARIOS -->
+
+                    <div class="admin-table-card">
+
+                        <div class="admin-table-header">
+
+                            <div>
+                                <h3>Usuarios registrados</h3>
+
+                                <p id="admin-users-count">
+                                    0 usuarios registrados
+                                </p>
+                            </div>
+
+                            <button type="button"
+                                    class="admin-primary-btn"
+                                    onclick="prepararNuevoUsuarioAdmin()">
+
+                                + Nuevo usuario
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="admin-table-responsive">
+
+                            <table class="admin-inventory-table">
+
+                                <thead>
+
+                                    <tr>
+                                        <th>RUN</th>
+                                        <th>Nombre</th>
+                                        <th>Correo</th>
+                                        <th>Rol</th>
+                                        <th>Región</th>
+                                        <th>Acciones</th>
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="admin-users-body">
+
+                                    <!-- JavaScript -->
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- FORMULARIO -->
+
+                    <aside class="admin-form-card">
+
+
+                        <div class="admin-form-header">
+
+                            <p>Formulario de usuario</p>
+
+                            <h3 id="admin-user-form-title">
+                                Agregar usuario
+                            </h3>
+
+                        </div>
+
+
+                        <form id="admin-user-form"
+                            onsubmit="return guardarUsuarioAdmin()"
+                            novalidate>
+
+
+                            <input type="hidden"
+                                id="admin-user-editing-id">
+
+
+                            <div class="admin-form-grid">
+
+
+                                <!-- RUN -->
+
+                                <label>
+                                    RUN *
+
+                                    <input type="text"
+                                        id="admin-user-run"
+                                        maxlength="9"
+                                        placeholder="Ej: 123456785">
+                                </label>
+
+
+                                <!-- Nombre -->
+
+                                <label>
+                                    Nombre completo *
+
+                                    <input type="text"
+                                        id="admin-user-name"
+                                        maxlength="100"
+                                        placeholder="Nombre completo">
+                                </label>
+
+
+                                <!-- Correo -->
+
+                                <label>
+                                    Correo *
+
+                                    <input type="email"
+                                        id="admin-user-email"
+                                        maxlength="100"
+                                        placeholder="correo@gmail.com">
+                                </label>
+
+
+                                <!-- Contraseña -->
+
+                                <label>
+                                    Contraseña *
+
+                                    <input type="password"
+                                        id="admin-user-password"
+                                        placeholder="Contraseña">
+                                </label>
+
+
+                                <!-- Fecha -->
+
+                                <label>
+                                    Fecha de nacimiento
+
+                                    <input type="date"
+                                        id="admin-user-birthdate">
+                                </label>
+
+
+                                <!-- Rol -->
+
+                                <label>
+                                    Tipo de usuario *
+
+                                    <select id="admin-user-role">
+
+                                        <option value="">
+                                            Selecciona un rol
+                                        </option>
+
+                                        <option value="cliente">
+                                            Cliente
+                                        </option>
+
+                                        <option value="vendedor">
+                                            Vendedor
+                                        </option>
+
+                                        <option value="admin">
+                                            Administrador
+                                        </option>
+
+                                    </select>
+                                </label>
+
+
+                                <!-- Región -->
+
+                                <label>
+                                    Región *
+
+                                    <select id="admin-user-region">
+
+                                        <option value="">
+                                            Selecciona una región
+                                        </option>
+
+                                    </select>
+                                </label>
+
+
+                                <!-- Comuna -->
+
+                                <label>
+                                    Comuna *
+
+                                    <select id="admin-user-comuna"
+                                            disabled>
+
+                                        <option value="">
+                                            Selecciona una comuna
+                                        </option>
+
+                                    </select>
+                                </label>
+
+
+                                <!-- Dirección -->
+
+                                <label class="admin-form-full">
+                                    Dirección *
+
+                                    <input type="text"
+                                        id="admin-user-address"
+                                        maxlength="300"
+                                        placeholder="Dirección del usuario">
+                                </label>
+
+
+                            </div>
+
+
+                            <!-- Mensajes -->
+
+                            <div id="admin-users-message"
+                                class="admin-form-message">
+                            </div>
+
+
+                            <!-- Botones -->
+
+                            <div class="admin-form-actions">
+
+                                <button type="submit"
+                                        class="admin-primary-btn">
+
+                                    Guardar usuario
+
+                                </button>
+
+                                <button type="button"
+                                        class="admin-secondary-btn"
+                                        onclick="limpiarFormularioUsuarioAdmin()">
+
+                                    Limpiar
+
+                                </button>
+
+                            </div>
+
+
+                        </form>
+
+
+                    </aside>
+
 
                 </div>
 

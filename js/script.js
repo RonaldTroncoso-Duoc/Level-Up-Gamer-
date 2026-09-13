@@ -74,6 +74,80 @@ function cargarRegionesYComunas() {
   });
 }
 
+//USUARIOS INICIALES DE PRUEBA
+function obtenerUsuariosIniciales() {
+
+  return [
+
+    {
+      id: 1001,
+      run: "123456785",
+      nombre: "Camila Soto",
+      fechaNacimiento: "1998-04-15",
+      email: "camila@gmail.com",
+      password: "camila123",
+      telefono: "+56911111111",
+      region: "Región Metropolitana de Santiago",
+      comuna: "Santiago",
+      direccion: "Av. Providencia 123",
+      rol: "cliente",
+      descuentoDuoc: false
+    },
+
+    {
+      id: 1002,
+      run: "193456782",
+      nombre: "Matías Rojas",
+      fechaNacimiento: "2000-08-22",
+      email: "matias@duoc.cl",
+      password: "matias123",
+      telefono: "+56922222222",
+      region: "Región Metropolitana de Santiago",
+      comuna: "Maipú",
+      direccion: "Los Pajaritos 456",
+      rol: "cliente",
+      descuentoDuoc: true
+    },
+
+    {
+      id: 1003,
+      run: "205678905",
+      nombre: "Fernanda Díaz",
+      fechaNacimiento: "1997-11-03",
+      email: "fernanda@gmail.com",
+      password: "fernanda123",
+      telefono: "+56933333333",
+      region: "Región de Valparaíso",
+      comuna: "Viña del Mar",
+      direccion: "Álvarez 789",
+      rol: "cliente",
+      descuentoDuoc: false
+    }
+
+  ];
+
+}
+
+function inicializarUsuarios() {
+
+  const usuariosGuardados =
+    localStorage.getItem("usuariosLevelUp");
+
+
+  if (!usuariosGuardados) {
+
+    const usuariosIniciales =
+      obtenerUsuariosIniciales();
+
+    localStorage.setItem(
+      "usuariosLevelUp",
+      JSON.stringify(usuariosIniciales)
+    );
+
+  }
+
+}
+
 function obtenerUsuariosRegistrados() {
   return JSON.parse(localStorage.getItem("usuariosLevelUp")) || [];
 }
@@ -558,6 +632,744 @@ function cerrarSesionAdmin() {
   window.location.href = "login.html";
 }
 
+//REGIONES Y COMUNAS -ADMIN USUARIOS
+function cargarRegionesUsuariosAdmin() {
+
+  const regionSelect =
+    document.getElementById("admin-user-region");
+
+  if (!regionSelect) {
+    return;
+  }
+
+  regionSelect.innerHTML =
+    '<option value="">Selecciona una región</option>';
+
+  Object.keys(regionesComunas).forEach((region) => {
+
+    const option = document.createElement("option");
+
+    option.value = region;
+    option.textContent = region;
+
+    regionSelect.appendChild(option);
+
+  });
+
+
+  regionSelect.addEventListener("change", function () {
+
+    cargarComunasUsuarioAdmin(regionSelect.value);
+
+  });
+
+}
+
+function cargarComunasUsuarioAdmin(
+  region,
+  comunaSeleccionada = ""
+) {
+
+  const comunaSelect =
+    document.getElementById("admin-user-comuna");
+
+  if (!comunaSelect) {
+    return;
+  }
+
+  const comunas = regionesComunas[region] || [];
+
+  comunaSelect.innerHTML =
+    '<option value="">Selecciona una comuna</option>';
+
+  comunaSelect.disabled = comunas.length === 0;
+
+
+  comunas.forEach((comuna) => {
+
+    const option = document.createElement("option");
+
+    option.value = comuna;
+    option.textContent = comuna;
+
+
+    if (comuna === comunaSeleccionada) {
+      option.selected = true;
+    }
+
+    comunaSelect.appendChild(option);
+
+  });
+
+}
+
+//MOSTRAR USUARIOS REGISTRADOS EN ADMIN
+function renderizarUsuariosAdmin() {
+
+  const tbody =
+    document.getElementById("admin-users-body");
+
+  const contador =
+    document.getElementById("admin-users-count");
+
+  if (!tbody) {
+    return;
+  }
+
+  const usuarios = obtenerUsuariosRegistrados();
+
+
+  // Si no existen usuarios registrados
+  if (usuarios.length === 0) {
+
+    tbody.innerHTML = `
+
+      <tr>
+        <td colspan="6" class="text-center">
+          No hay usuarios registrados.
+        </td>
+      </tr>
+
+    `;
+
+  } else {
+
+    tbody.innerHTML = usuarios
+      .map((usuario) => {
+
+        return `
+
+          <tr>
+
+            <td>
+              ${usuario.run || "Sin RUN"}
+            </td>
+
+            <td>
+              ${usuario.nombre || "-"}
+            </td>
+
+            <td>
+              ${usuario.email || "-"}
+            </td>
+
+            <td>
+              ${obtenerNombreRolAdmin(usuario.rol)}
+            </td>
+
+            <td>
+              ${usuario.region || "-"}
+            </td>
+
+            <td>
+
+              <div class="admin-row-actions">
+
+                <button
+                  type="button"
+                  onclick="editarUsuarioAdmin('${usuario.id}')">
+
+                  Editar
+
+                </button>
+
+                <button
+                  type="button"
+                  class="danger"
+                  onclick="eliminarUsuarioAdmin('${usuario.id}')">
+
+                  Eliminar
+
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      })
+      .join("");
+
+  }
+
+
+  // Actualizar contador
+  if (contador) {
+
+    contador.textContent =
+      usuarios.length +
+      (usuarios.length === 1
+        ? " usuario registrado"
+        : " usuarios registrados");
+
+  }
+
+}
+
+function obtenerNombreRolAdmin(rol) {
+
+  if (rol === "admin") {
+    return "Administrador";
+  }
+
+  if (rol === "vendedor") {
+    return "Vendedor";
+  }
+
+  return "Cliente";
+}
+
+//OBTENER DATOS FORMULARIO USUARIO ADMIN
+function obtenerDatosFormularioUsuarioAdmin() {
+
+  return {
+
+    editingId:
+      document.getElementById("admin-user-editing-id")?.value || "",
+
+    run:
+      document.getElementById("admin-user-run")
+        ?.value.trim().toUpperCase() || "",
+
+    nombre:
+      document.getElementById("admin-user-name")
+        ?.value.trim() || "",
+
+    email:
+      document.getElementById("admin-user-email")
+        ?.value.trim().toLowerCase() || "",
+
+    password:
+      document.getElementById("admin-user-password")
+        ?.value.trim() || "",
+
+    fechaNacimiento:
+      document.getElementById("admin-user-birthdate")
+        ?.value || "",
+
+    rol:
+      document.getElementById("admin-user-role")
+        ?.value || "",
+
+    region:
+      document.getElementById("admin-user-region")
+        ?.value || "",
+
+    comuna:
+      document.getElementById("admin-user-comuna")
+        ?.value || "",
+
+    direccion:
+      document.getElementById("admin-user-address")
+        ?.value.trim() || ""
+  };
+
+}
+
+//MENSAJES ADMIN USUARIOS
+function mostrarMensajeUsuarioAdmin(mensaje, tipo = "error") {
+
+  const contenedor =
+    document.getElementById("admin-users-message");
+
+  if (!contenedor) {
+    return;
+  }
+
+  contenedor.textContent = mensaje;
+
+  contenedor.className =
+    "admin-form-message " + tipo;
+
+}
+
+//LIMPIAR FORMULARIO USUARIO ADMIN
+function limpiarFormularioUsuarioAdmin(
+  limpiarMensaje = true
+) {
+
+  const formulario =
+    document.getElementById("admin-user-form");
+
+  if (formulario) {
+    formulario.reset();
+  }
+
+
+  const editingId =
+    document.getElementById(
+      "admin-user-editing-id"
+    );
+
+  if (editingId) {
+    editingId.value = "";
+  }
+
+
+  const titulo =
+    document.getElementById(
+      "admin-user-form-title"
+    );
+
+  if (titulo) {
+    titulo.textContent = "Agregar usuario";
+  }
+
+
+  const comuna =
+    document.getElementById(
+      "admin-user-comuna"
+    );
+
+  if (comuna) {
+
+    comuna.innerHTML =
+      '<option value="">Selecciona una comuna</option>';
+
+    comuna.disabled = true;
+
+  }
+
+
+  if (limpiarMensaje) {
+
+    const mensaje =
+      document.getElementById(
+        "admin-users-message"
+      );
+
+    if (mensaje) {
+
+      mensaje.textContent = "";
+
+      mensaje.className =
+        "admin-form-message";
+
+    }
+
+  }
+
+}
+
+function prepararNuevoUsuarioAdmin() {
+
+  limpiarFormularioUsuarioAdmin();
+
+  const campoRun =
+    document.getElementById("admin-user-run");
+
+  if (campoRun) {
+    campoRun.focus();
+  }
+
+}
+
+//GUARDAR USUARIO ADMIN
+function guardarUsuarioAdmin() {
+
+  const datos = obtenerDatosFormularioUsuarioAdmin();
+
+  const errores = [];
+
+  const usuarios = obtenerUsuariosRegistrados();
+
+  // RUN
+  if (datos.run === "") {
+
+    errores.push("El RUN es obligatorio.");
+
+  } else if (
+    datos.run.includes(".") ||
+    datos.run.includes("-")
+  ) {
+
+    errores.push(
+      "El RUN debe ingresarse sin puntos ni guion."
+    );
+
+  } else if (
+    datos.run.length < 7 ||
+    datos.run.length > 9
+  ) {
+
+    errores.push(
+      "El RUN debe tener entre 7 y 9 caracteres."
+    );
+
+  } else if (!validarRun(datos.run)) {
+
+    errores.push(
+      "El RUN ingresado no es válido."
+    );
+
+  }
+
+  // NOMBRE
+  if (datos.nombre === "") {
+
+    errores.push(
+      "El nombre completo es obligatorio."
+    );
+
+  }
+
+  // CORREO
+  const emailRegex =
+    /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/;
+
+
+  if (datos.email === "") {
+
+    errores.push(
+      "El correo es obligatorio."
+    );
+
+  } else if (datos.email.includes(" ")) {
+
+    errores.push(
+      "El correo no puede contener espacios."
+    );
+
+  } else if (datos.email.length > 100) {
+
+    errores.push(
+      "El correo no puede superar los 100 caracteres."
+    );
+
+  } else if (!emailRegex.test(datos.email)) {
+
+    errores.push(
+      "El correo debe pertenecer a @duoc.cl, " +
+      "@profesor.duoc.cl o @gmail.com."
+    );
+
+  }
+
+  // CONTRASEÑA
+  if (!datos.editingId && datos.password === "") {
+
+    errores.push(
+      "La contraseña es obligatoria."
+    );
+
+  }
+
+  // ROL
+  if (datos.rol === "") {
+
+    errores.push(
+      "Debes seleccionar un tipo de usuario."
+    );
+
+  }
+
+  // REGIÓN
+  if (datos.region === "") {
+
+    errores.push(
+      "Debes seleccionar una región."
+    );
+
+  }
+
+  // COMUNA
+  if (datos.comuna === "") {
+
+    errores.push(
+      "Debes seleccionar una comuna."
+    );
+
+  }
+
+  // DIRECCIÓN
+  if (datos.direccion === "") {
+
+    errores.push(
+      "La dirección es obligatoria."
+    );
+
+  } else if (datos.direccion.length > 300) {
+
+    errores.push(
+      "La dirección no puede superar los 300 caracteres."
+    );
+
+  }
+
+  // RUN DUPLICADO
+  const runDuplicado = usuarios.some(
+    (usuario) =>
+      usuario.run === datos.run &&
+      String(usuario.id) !== String(datos.editingId)
+  );
+
+
+  if (runDuplicado) {
+
+    errores.push(
+      "Ya existe un usuario registrado con ese RUN."
+    );
+
+  }
+
+  // CORREO DUPLICADO
+  const correoDuplicado = usuarios.some(
+    (usuario) =>
+      usuario.email === datos.email &&
+      String(usuario.id) !== String(datos.editingId)
+  );
+
+
+  if (correoDuplicado) {
+
+    errores.push(
+      "Ya existe un usuario registrado con ese correo."
+    );
+
+  }
+
+  // MOSTRAR ERRORES
+  if (errores.length > 0) {
+
+    mostrarMensajeUsuarioAdmin(
+      errores.join(" ")
+    );
+
+    return false;
+  }
+
+  // BENEFICIO DUOC
+  const descuentoDuoc =
+    datos.email.endsWith("@duoc.cl") ||
+    datos.email.endsWith("@profesor.duoc.cl");
+  
+  //EDITAR USUARIO EXISTENTE
+  if (datos.editingId) {
+
+    const usuariosActualizados = usuarios.map((usuario) => {
+
+      if (String(usuario.id) !== String(datos.editingId)) {
+        return usuario;
+      }
+
+      return {
+        ...usuario,
+
+        run: datos.run,
+        nombre: datos.nombre,
+        email: datos.email,
+
+        password:
+          datos.password || usuario.password,
+
+        fechaNacimiento:
+          datos.fechaNacimiento,
+
+        region: datos.region,
+        comuna: datos.comuna,
+        direccion: datos.direccion,
+
+        rol: datos.rol,
+
+        descuentoDuoc
+      };
+
+    });
+
+
+    guardarUsuariosRegistrados(usuariosActualizados);
+
+    renderizarUsuariosAdmin();
+
+    limpiarFormularioUsuarioAdmin(false);
+
+    mostrarMensajeUsuarioAdmin(
+      "Usuario actualizado correctamente.",
+      "success"
+    );
+
+    return false;
+  }
+
+  // CREAR NUEVO USUARIO
+  const nuevoUsuario = {
+
+    id: Date.now(),
+
+    run: datos.run,
+
+    nombre: datos.nombre,
+
+    email: datos.email,
+
+    password: datos.password,
+
+    fechaNacimiento: datos.fechaNacimiento,
+
+    telefono: "",
+
+    region: datos.region,
+
+    comuna: datos.comuna,
+
+    direccion: datos.direccion,
+
+    rol: datos.rol,
+
+    descuentoDuoc: descuentoDuoc
+  };
+
+
+  usuarios.push(nuevoUsuario);
+
+
+  guardarUsuariosRegistrados(usuarios);
+
+
+  renderizarUsuariosAdmin();
+
+
+  mostrarMensajeUsuarioAdmin(
+    "Usuario agregado correctamente.",
+    "success"
+  );
+
+
+  limpiarFormularioUsuarioAdmin(false);
+
+
+  return false;
+
+}
+
+//EDITAR USUARIO ADMIN
+function editarUsuarioAdmin(idUsuario) {
+
+  const usuarios = obtenerUsuariosRegistrados();
+
+  const usuario = usuarios.find(
+    (item) => String(item.id) === String(idUsuario)
+  );
+
+  if (!usuario) {
+    return;
+  }
+
+  document.getElementById(
+    "admin-user-editing-id"
+  ).value = usuario.id;
+
+
+  document.getElementById(
+    "admin-user-run"
+  ).value = usuario.run || "";
+
+
+  document.getElementById(
+    "admin-user-name"
+  ).value = usuario.nombre || "";
+
+
+  document.getElementById(
+    "admin-user-email"
+  ).value = usuario.email || "";
+
+
+  // No mostramos la contraseña guardada.
+  // Si queda vacío al guardar, se conserva.
+  document.getElementById(
+    "admin-user-password"
+  ).value = "";
+
+
+  document.getElementById(
+    "admin-user-birthdate"
+  ).value = usuario.fechaNacimiento || "";
+
+
+  document.getElementById(
+    "admin-user-role"
+  ).value = usuario.rol || "cliente";
+
+
+  document.getElementById(
+    "admin-user-region"
+  ).value = usuario.region || "";
+
+
+  cargarComunasUsuarioAdmin(
+    usuario.region,
+    usuario.comuna
+  );
+
+
+  document.getElementById(
+    "admin-user-address"
+  ).value = usuario.direccion || "";
+
+
+  const titulo =
+    document.getElementById(
+      "admin-user-form-title"
+    );
+
+  if (titulo) {
+    titulo.textContent = "Editar usuario";
+  }
+
+
+  mostrarMensajeUsuarioAdmin(
+    "Editando usuario: " + usuario.nombre,
+    "info"
+  );
+}
+
+//ELIMINAR USUARIO ADMIN
+function eliminarUsuarioAdmin(idUsuario) {
+
+  const usuarios = obtenerUsuariosRegistrados();
+
+  const usuario = usuarios.find(
+    (item) => String(item.id) === String(idUsuario)
+  );
+
+
+  if (!usuario) {
+    return;
+  }
+
+
+  const confirmar = confirm(
+    "¿Deseas eliminar al usuario " + usuario.nombre + "?"
+  );
+
+
+  if (!confirmar) {
+    return;
+  }
+
+
+  const usuariosActualizados = usuarios.filter(
+    (item) => String(item.id) !== String(idUsuario)
+  );
+
+
+  guardarUsuariosRegistrados(usuariosActualizados);
+
+  renderizarUsuariosAdmin();
+
+  limpiarFormularioUsuarioAdmin(false);
+
+  mostrarMensajeUsuarioAdmin(
+    "Usuario eliminado correctamente.",
+    "success"
+  );
+
+}
+
 function cargarPanelAdministrador() {
   const adminBody = document.querySelector(".admin-body");
 
@@ -607,6 +1419,8 @@ function cargarPanelAdministrador() {
   inicializarNavegacionAdmin();
   renderizarResumenPedidosAdmin();
   renderizarPedidosAdmin();
+  cargarRegionesUsuariosAdmin();
+  renderizarUsuariosAdmin();
 }
 
 const pedidosAdmin = crearPedidosAdmin();
@@ -2409,6 +3223,7 @@ function correoValidoContacto(correo) {
 
 }
 
+inicializarUsuarios();
 actualizarHeaderUsuario();
 cargarFiltrosProductos();
 mostrarProductos();
