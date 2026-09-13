@@ -375,6 +375,14 @@ function actualizarHeaderUsuario() {
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end user-session-menu">
+          ${
+            usuario.rol === "admin"
+              ? `<li>
+                  <a class="dropdown-item" href="admin.html">Panel administrador</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>`
+              : ""
+          }
           <li>
             <button class="dropdown-item" type="button" onclick="editarPerfil()">
               Editar perfil
@@ -463,106 +471,86 @@ function cargarPanelAdministrador() {
     totalUsuarios.textContent = usuariosRegistrados.length;
   }
 
+  actualizarDashboardAdmin();
   inicializarNavegacionAdmin();
   renderizarResumenPedidosAdmin();
   renderizarPedidosAdmin();
 }
 
-const pedidosAdmin = [
-  {
-    id: "LVG-1001",
-    fecha: "13/09/2026",
-    trabajador: "Camila Torres",
-    estado: "Completado",
-    productos: [
+const pedidosAdmin = crearPedidosAdmin();
+
+function crearPedidosAdmin() {
+  const trabajadores = [
+    "Camila Torres",
+    "Matías Rojas",
+    "Fernanda Muñoz",
+    "Diego Salazar",
+    "Valentina Soto",
+    "Nicolás Herrera",
+  ];
+  const fechas = [
+    ...Array(12).fill("13/09/2026"),
+    ...Array(10).fill("12/09/2026"),
+    ...Array(8).fill("11/09/2026"),
+    ...Array(7).fill("10/09/2026"),
+    ...Array(7).fill("09/09/2026"),
+    ...Array(6).fill("08/09/2026"),
+  ];
+  const estados = ["Completado", "En curso", "Completado", "Cancelado", "Completado"];
+  const gruposProductos = [
+    [
       { nombre: "PlayStation 5", cantidad: 1, precio: 549990 },
       { nombre: "Auriculares Gamer HyperX Cloud II", cantidad: 1, precio: 79990 },
     ],
-  },
-  {
-    id: "LVG-1002",
-    fecha: "13/09/2026",
-    trabajador: "Matías Rojas",
-    estado: "En curso",
-    productos: [
+    [
       { nombre: "Catan", cantidad: 2, precio: 29990 },
       { nombre: "Carcassonne", cantidad: 1, precio: 24990 },
     ],
-  },
-  {
-    id: "LVG-1003",
-    fecha: "12/09/2026",
-    trabajador: "Fernanda Muñoz",
-    estado: "Cancelado",
-    productos: [
-      { nombre: "PC Gamer ASUS ROG Strix", cantidad: 1, precio: 1299990 },
-    ],
-  },
-  {
-    id: "LVG-1004",
-    fecha: "12/09/2026",
-    trabajador: "Diego Salazar",
-    estado: "Completado",
-    productos: [
+    [{ nombre: "PC Gamer ASUS ROG Strix", cantidad: 1, precio: 1299990 }],
+    [
       { nombre: "Mouse Gamer Logitech G502 HERO", cantidad: 1, precio: 49990 },
       { nombre: "Mousepad Razer Goliathus Extended Chroma", cantidad: 1, precio: 29990 },
     ],
-  },
-  {
-    id: "LVG-1005",
-    fecha: "11/09/2026",
-    trabajador: "Valentina Soto",
-    estado: "En curso",
-    productos: [
+    [
       { nombre: "Silla Gamer Secretlab Titan", cantidad: 1, precio: 349990 },
       { nombre: "Polera Gamer Personalizada 'Level-Up'", cantidad: 2, precio: 14990 },
     ],
-  },
-  {
-    id: "LVG-1006",
-    fecha: "11/09/2026",
-    trabajador: "Nicolás Herrera",
-    estado: "Completado",
-    productos: [
-      { nombre: "Controlador Inalámbrico Xbox Series X", cantidad: 2, precio: 59990 },
-    ],
-  },
-  {
-    id: "LVG-1007",
-    fecha: "10/09/2026",
-    trabajador: "Camila Torres",
-    estado: "Cancelado",
-    productos: [
-      { nombre: "PlayStation 5", cantidad: 1, precio: 549990 },
-      { nombre: "Mouse Gamer Logitech G502 HERO", cantidad: 1, precio: 49990 },
-    ],
-  },
-  {
-    id: "LVG-1008",
-    fecha: "10/09/2026",
-    trabajador: "Matías Rojas",
-    estado: "Completado",
-    productos: [
-      { nombre: "Catan", cantidad: 1, precio: 29990 },
-      { nombre: "Carcassonne", cantidad: 1, precio: 24990 },
-      { nombre: "Mousepad Razer Goliathus Extended Chroma", cantidad: 1, precio: 29990 },
-    ],
-  },
-  {
-    id: "LVG-1009",
-    fecha: "09/09/2026",
-    trabajador: "Fernanda Muñoz",
-    estado: "En curso",
-    productos: [
-      { nombre: "Auriculares Gamer HyperX Cloud II", cantidad: 1, precio: 79990 },
-      { nombre: "Controlador Inalámbrico Xbox Series X", cantidad: 1, precio: 59990 },
-    ],
-  },
-];
+    [{ nombre: "Controlador Inalámbrico Xbox Series X", cantidad: 2, precio: 59990 }],
+  ];
+
+  return fechas.map((fecha, index) => ({
+    id: `LVG-${String(1050 - index).padStart(4, "0")}`,
+    fecha,
+    trabajador: trabajadores[index % trabajadores.length],
+    estado: estados[index % estados.length],
+    productos: gruposProductos[index % gruposProductos.length],
+  }));
+}
 
 let paginaPedidosAdmin = 1;
 let pedidoSeleccionadoAdmin = null;
-const pedidosPorPaginaAdmin = 3;
+const pedidosPorPaginaAdmin = 10;
+
+function actualizarDashboardAdmin() {
+  const pedidosHoy = document.getElementById("admin-dashboard-orders-today");
+  const ventasHoy = document.getElementById("admin-dashboard-sales-today");
+  const fechaHoySimulada = pedidosAdmin[0]?.fecha;
+  const pedidosDelDia = pedidosAdmin.filter(
+    (pedido) => pedido.fecha === fechaHoySimulada,
+  );
+  const totalVendidoDia = pedidosDelDia.reduce(
+    (total, pedido) => total + obtenerTotalPedidoAdmin(pedido),
+    0,
+  );
+
+  if (pedidosHoy) {
+    pedidosHoy.textContent = pedidosDelDia.length;
+  }
+
+  if (ventasHoy) {
+    ventasHoy.textContent = formatearPrecio(totalVendidoDia);
+  }
+}
 
 function inicializarNavegacionAdmin() {
   const links = document.querySelectorAll("[data-admin-view]");
@@ -653,6 +641,10 @@ function renderizarPedidosAdmin() {
       const total = obtenerTotalPedidoAdmin(pedido);
       const estadoClase = obtenerClaseEstadoPedidoAdmin(pedido.estado);
       const seleccionado = pedidoSeleccionadoAdmin === pedido.id ? "selected" : "";
+      const filaDetalle =
+        pedidoSeleccionadoAdmin === pedido.id
+          ? renderizarFilaDetallePedidoAdmin(pedido)
+          : "";
 
       return `
         <tr class="${seleccionado}" onclick="seleccionarPedidoAdmin('${pedido.id}')">
@@ -662,6 +654,7 @@ function renderizarPedidosAdmin() {
           <td><span class="admin-status-badge ${estadoClase}">${pedido.estado}</span></td>
           <td>${formatearPrecio(total)}</td>
         </tr>
+        ${filaDetalle}
       `;
     })
     .join("");
@@ -719,83 +712,64 @@ function cambiarPaginaPedidosAdmin(pagina) {
   paginaPedidosAdmin = pagina;
   pedidoSeleccionadoAdmin = null;
   renderizarPedidosAdmin();
-  limpiarDetallePedidoAdmin();
 }
 
 function seleccionarPedidoAdmin(idPedido) {
-  pedidoSeleccionadoAdmin = idPedido;
+  pedidoSeleccionadoAdmin = pedidoSeleccionadoAdmin === idPedido ? null : idPedido;
   renderizarPedidosAdmin();
-  renderizarDetallePedidoAdmin(idPedido);
 }
 
-function limpiarDetallePedidoAdmin() {
-  const detalle = document.getElementById("admin-order-detail");
-
-  if (!detalle) {
-    return;
-  }
-
-  detalle.innerHTML = `
-    <div class="admin-empty-detail">
-      <span>🧾</span>
-      <strong>Selecciona una venta</strong>
-      <p>El detalle de productos comprados aparecerá en esta sección.</p>
-    </div>
-  `;
-}
-
-function renderizarDetallePedidoAdmin(idPedido) {
-  const detalle = document.getElementById("admin-order-detail");
-  const pedido = pedidosAdmin.find((pedidoActual) => pedidoActual.id === idPedido);
-
-  if (!detalle || !pedido) {
-    return;
-  }
-
+function renderizarFilaDetallePedidoAdmin(pedido) {
   const total = obtenerTotalPedidoAdmin(pedido);
   const estadoClase = obtenerClaseEstadoPedidoAdmin(pedido.estado);
 
-  detalle.innerHTML = `
-    <div class="admin-order-detail-header">
-      <div>
-        <p>Detalle de venta</p>
-        <h3>${pedido.id}</h3>
-      </div>
-      <span class="admin-status-badge ${estadoClase}">${pedido.estado}</span>
-    </div>
+  return `
+    <tr class="admin-order-detail-row">
+      <td colspan="5">
+        <div class="admin-order-detail-inline">
+          <div class="admin-order-detail-header">
+            <div>
+              <p>Detalle de venta</p>
+              <h3>${pedido.id}</h3>
+            </div>
+            <span class="admin-status-badge ${estadoClase}">${pedido.estado}</span>
+          </div>
 
-    <div class="admin-order-meta">
-      <span><strong>Fecha:</strong> ${pedido.fecha}</span>
-      <span><strong>Trabajador:</strong> ${pedido.trabajador}</span>
-      <span><strong>Total:</strong> ${formatearPrecio(total)}</span>
-    </div>
+          <div class="admin-order-meta">
+            <span><strong>Fecha:</strong> ${pedido.fecha}</span>
+            <span><strong>Trabajador:</strong> ${pedido.trabajador}</span>
+            <span><strong>Total:</strong> ${formatearPrecio(total)}</span>
+          </div>
 
-    <div class="admin-table-responsive">
-      <table class="admin-order-products-table">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio unitario</th>
-            <th>Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${pedido.productos
-            .map(
-              (producto) => `
+          <div class="admin-table-responsive">
+            <table class="admin-order-products-table">
+              <thead>
                 <tr>
-                  <td>${producto.nombre}</td>
-                  <td>${producto.cantidad}</td>
-                  <td>${formatearPrecio(producto.precio)}</td>
-                  <td>${formatearPrecio(producto.precio * producto.cantidad)}</td>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio unitario</th>
+                  <th>Subtotal</th>
                 </tr>
-              `,
-            )
-            .join("")}
-        </tbody>
-      </table>
-    </div>
+              </thead>
+              <tbody>
+                ${pedido.productos
+                  .map(
+                    (producto) => `
+                      <tr>
+                        <td>${producto.nombre}</td>
+                        <td>${producto.cantidad}</td>
+                        <td>${formatearPrecio(producto.precio)}</td>
+                        <td>${formatearPrecio(producto.precio * producto.cantidad)}</td>
+                      </tr>
+                    `,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </td>
+    </tr>
   `;
 }
 
