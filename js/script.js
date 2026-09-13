@@ -101,6 +101,10 @@ function obtenerIniciales(nombre) {
   );
 }
 
+function formatearPrecio(valor) {
+  return "$" + valor.toLocaleString("es-CL") + " CLP";
+}
+
 function validarLogin() {
   const errores = [];
 
@@ -458,6 +462,341 @@ function cargarPanelAdministrador() {
   if (totalUsuarios) {
     totalUsuarios.textContent = usuariosRegistrados.length;
   }
+
+  inicializarNavegacionAdmin();
+  renderizarResumenPedidosAdmin();
+  renderizarPedidosAdmin();
+}
+
+const pedidosAdmin = [
+  {
+    id: "LVG-1001",
+    fecha: "13/09/2026",
+    trabajador: "Camila Torres",
+    estado: "Completado",
+    productos: [
+      { nombre: "PlayStation 5", cantidad: 1, precio: 549990 },
+      { nombre: "Auriculares Gamer HyperX Cloud II", cantidad: 1, precio: 79990 },
+    ],
+  },
+  {
+    id: "LVG-1002",
+    fecha: "13/09/2026",
+    trabajador: "Matías Rojas",
+    estado: "En curso",
+    productos: [
+      { nombre: "Catan", cantidad: 2, precio: 29990 },
+      { nombre: "Carcassonne", cantidad: 1, precio: 24990 },
+    ],
+  },
+  {
+    id: "LVG-1003",
+    fecha: "12/09/2026",
+    trabajador: "Fernanda Muñoz",
+    estado: "Cancelado",
+    productos: [
+      { nombre: "PC Gamer ASUS ROG Strix", cantidad: 1, precio: 1299990 },
+    ],
+  },
+  {
+    id: "LVG-1004",
+    fecha: "12/09/2026",
+    trabajador: "Diego Salazar",
+    estado: "Completado",
+    productos: [
+      { nombre: "Mouse Gamer Logitech G502 HERO", cantidad: 1, precio: 49990 },
+      { nombre: "Mousepad Razer Goliathus Extended Chroma", cantidad: 1, precio: 29990 },
+    ],
+  },
+  {
+    id: "LVG-1005",
+    fecha: "11/09/2026",
+    trabajador: "Valentina Soto",
+    estado: "En curso",
+    productos: [
+      { nombre: "Silla Gamer Secretlab Titan", cantidad: 1, precio: 349990 },
+      { nombre: "Polera Gamer Personalizada 'Level-Up'", cantidad: 2, precio: 14990 },
+    ],
+  },
+  {
+    id: "LVG-1006",
+    fecha: "11/09/2026",
+    trabajador: "Nicolás Herrera",
+    estado: "Completado",
+    productos: [
+      { nombre: "Controlador Inalámbrico Xbox Series X", cantidad: 2, precio: 59990 },
+    ],
+  },
+  {
+    id: "LVG-1007",
+    fecha: "10/09/2026",
+    trabajador: "Camila Torres",
+    estado: "Cancelado",
+    productos: [
+      { nombre: "PlayStation 5", cantidad: 1, precio: 549990 },
+      { nombre: "Mouse Gamer Logitech G502 HERO", cantidad: 1, precio: 49990 },
+    ],
+  },
+  {
+    id: "LVG-1008",
+    fecha: "10/09/2026",
+    trabajador: "Matías Rojas",
+    estado: "Completado",
+    productos: [
+      { nombre: "Catan", cantidad: 1, precio: 29990 },
+      { nombre: "Carcassonne", cantidad: 1, precio: 24990 },
+      { nombre: "Mousepad Razer Goliathus Extended Chroma", cantidad: 1, precio: 29990 },
+    ],
+  },
+  {
+    id: "LVG-1009",
+    fecha: "09/09/2026",
+    trabajador: "Fernanda Muñoz",
+    estado: "En curso",
+    productos: [
+      { nombre: "Auriculares Gamer HyperX Cloud II", cantidad: 1, precio: 79990 },
+      { nombre: "Controlador Inalámbrico Xbox Series X", cantidad: 1, precio: 59990 },
+    ],
+  },
+];
+
+let paginaPedidosAdmin = 1;
+let pedidoSeleccionadoAdmin = null;
+const pedidosPorPaginaAdmin = 3;
+
+function inicializarNavegacionAdmin() {
+  const links = document.querySelectorAll("[data-admin-view]");
+
+  links.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      cambiarVistaAdmin(link.dataset.adminView);
+    });
+  });
+}
+
+function cambiarVistaAdmin(vista) {
+  const secciones = document.querySelectorAll(".admin-view-section");
+  const links = document.querySelectorAll("[data-admin-view]");
+
+  secciones.forEach((seccion) => {
+    seccion.classList.toggle("active", seccion.id === `admin-view-${vista}`);
+  });
+
+  links.forEach((link) => {
+    const activo = link.dataset.adminView === vista;
+    link.classList.toggle("active", activo);
+
+    if (activo) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
+function obtenerTotalPedidoAdmin(pedido) {
+  return pedido.productos.reduce(
+    (total, producto) => total + producto.precio * producto.cantidad,
+    0,
+  );
+}
+
+function obtenerClaseEstadoPedidoAdmin(estado) {
+  const estadoNormalizado = estado.toLowerCase();
+
+  if (estadoNormalizado === "completado") {
+    return "completed";
+  }
+
+  if (estadoNormalizado === "cancelado") {
+    return "cancelled";
+  }
+
+  return "progress";
+}
+
+function renderizarResumenPedidosAdmin() {
+  const completados = document.getElementById("admin-orders-completed");
+  const enCurso = document.getElementById("admin-orders-progress");
+  const cancelados = document.getElementById("admin-orders-cancelled");
+
+  if (!completados || !enCurso || !cancelados) {
+    return;
+  }
+
+  completados.textContent = pedidosAdmin.filter(
+    (pedido) => pedido.estado === "Completado",
+  ).length;
+  enCurso.textContent = pedidosAdmin.filter(
+    (pedido) => pedido.estado === "En curso",
+  ).length;
+  cancelados.textContent = pedidosAdmin.filter(
+    (pedido) => pedido.estado === "Cancelado",
+  ).length;
+}
+
+function renderizarPedidosAdmin() {
+  const tbody = document.getElementById("admin-orders-body");
+  const rango = document.getElementById("admin-orders-range");
+
+  if (!tbody) {
+    return;
+  }
+
+  const inicio = (paginaPedidosAdmin - 1) * pedidosPorPaginaAdmin;
+  const fin = inicio + pedidosPorPaginaAdmin;
+  const pedidosPagina = pedidosAdmin.slice(inicio, fin);
+
+  tbody.innerHTML = pedidosPagina
+    .map((pedido) => {
+      const total = obtenerTotalPedidoAdmin(pedido);
+      const estadoClase = obtenerClaseEstadoPedidoAdmin(pedido.estado);
+      const seleccionado = pedidoSeleccionadoAdmin === pedido.id ? "selected" : "";
+
+      return `
+        <tr class="${seleccionado}" onclick="seleccionarPedidoAdmin('${pedido.id}')">
+          <td>${pedido.fecha}</td>
+          <td><strong>${pedido.id}</strong></td>
+          <td>${pedido.trabajador}</td>
+          <td><span class="admin-status-badge ${estadoClase}">${pedido.estado}</span></td>
+          <td>${formatearPrecio(total)}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  if (rango) {
+    rango.textContent = `Mostrando ${inicio + 1}-${Math.min(
+      fin,
+      pedidosAdmin.length,
+    )} de ${pedidosAdmin.length} ventas`;
+  }
+
+  renderizarPaginacionPedidosAdmin();
+}
+
+function renderizarPaginacionPedidosAdmin() {
+  const contenedor = document.getElementById("admin-orders-pagination");
+
+  if (!contenedor) {
+    return;
+  }
+
+  const totalPaginas = Math.ceil(pedidosAdmin.length / pedidosPorPaginaAdmin);
+  const botones = [];
+
+  botones.push(
+    `<button type="button" onclick="cambiarPaginaPedidosAdmin(1)" ${paginaPedidosAdmin === 1 ? "disabled" : ""}>&lt;&lt;</button>`,
+  );
+  botones.push(
+    `<button type="button" onclick="cambiarPaginaPedidosAdmin(${paginaPedidosAdmin - 1})" ${paginaPedidosAdmin === 1 ? "disabled" : ""}>&lt;</button>`,
+  );
+
+  for (let pagina = 1; pagina <= totalPaginas; pagina += 1) {
+    botones.push(
+      `<button type="button" class="${paginaPedidosAdmin === pagina ? "active" : ""}" onclick="cambiarPaginaPedidosAdmin(${pagina})">${pagina}</button>`,
+    );
+  }
+
+  botones.push(
+    `<button type="button" onclick="cambiarPaginaPedidosAdmin(${paginaPedidosAdmin + 1})" ${paginaPedidosAdmin === totalPaginas ? "disabled" : ""}>&gt;</button>`,
+  );
+  botones.push(
+    `<button type="button" onclick="cambiarPaginaPedidosAdmin(${totalPaginas})" ${paginaPedidosAdmin === totalPaginas ? "disabled" : ""}>&gt;&gt;</button>`,
+  );
+
+  contenedor.innerHTML = botones.join("");
+}
+
+function cambiarPaginaPedidosAdmin(pagina) {
+  const totalPaginas = Math.ceil(pedidosAdmin.length / pedidosPorPaginaAdmin);
+
+  if (pagina < 1 || pagina > totalPaginas) {
+    return;
+  }
+
+  paginaPedidosAdmin = pagina;
+  pedidoSeleccionadoAdmin = null;
+  renderizarPedidosAdmin();
+  limpiarDetallePedidoAdmin();
+}
+
+function seleccionarPedidoAdmin(idPedido) {
+  pedidoSeleccionadoAdmin = idPedido;
+  renderizarPedidosAdmin();
+  renderizarDetallePedidoAdmin(idPedido);
+}
+
+function limpiarDetallePedidoAdmin() {
+  const detalle = document.getElementById("admin-order-detail");
+
+  if (!detalle) {
+    return;
+  }
+
+  detalle.innerHTML = `
+    <div class="admin-empty-detail">
+      <span>🧾</span>
+      <strong>Selecciona una venta</strong>
+      <p>El detalle de productos comprados aparecerá en esta sección.</p>
+    </div>
+  `;
+}
+
+function renderizarDetallePedidoAdmin(idPedido) {
+  const detalle = document.getElementById("admin-order-detail");
+  const pedido = pedidosAdmin.find((pedidoActual) => pedidoActual.id === idPedido);
+
+  if (!detalle || !pedido) {
+    return;
+  }
+
+  const total = obtenerTotalPedidoAdmin(pedido);
+  const estadoClase = obtenerClaseEstadoPedidoAdmin(pedido.estado);
+
+  detalle.innerHTML = `
+    <div class="admin-order-detail-header">
+      <div>
+        <p>Detalle de venta</p>
+        <h3>${pedido.id}</h3>
+      </div>
+      <span class="admin-status-badge ${estadoClase}">${pedido.estado}</span>
+    </div>
+
+    <div class="admin-order-meta">
+      <span><strong>Fecha:</strong> ${pedido.fecha}</span>
+      <span><strong>Trabajador:</strong> ${pedido.trabajador}</span>
+      <span><strong>Total:</strong> ${formatearPrecio(total)}</span>
+    </div>
+
+    <div class="admin-table-responsive">
+      <table class="admin-order-products-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio unitario</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pedido.productos
+            .map(
+              (producto) => `
+                <tr>
+                  <td>${producto.nombre}</td>
+                  <td>${producto.cantidad}</td>
+                  <td>${formatearPrecio(producto.precio)}</td>
+                  <td>${formatearPrecio(producto.precio * producto.cantidad)}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 const productos = [

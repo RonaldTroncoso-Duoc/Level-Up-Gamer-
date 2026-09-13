@@ -43,12 +43,12 @@
 
                 <p class="admin-menu-title">Gestión</p>
 
-                <a href="admin.html" class="admin-menu-link active" aria-current="page">
+                <a href="#" class="admin-menu-link active" data-admin-view="dashboard" aria-current="page">
                     <span class="admin-menu-icon">📊</span>
                     <span>Dashboard</span>
                 </a>
 
-                <a href="#" class="admin-menu-link">
+                <a href="#" class="admin-menu-link" data-admin-view="pedidos">
                     <span class="admin-menu-icon">🧾</span>
                     <span>Pedidos</span>
                 </a>
@@ -136,7 +136,7 @@
 
 
             <!-- Dashboard inicial -->
-            <section class="admin-content-panel">
+            <section class="admin-content-panel admin-view-section active" id="admin-view-dashboard">
 
                 <div class="admin-section-heading">
                     <div>
@@ -236,6 +236,96 @@
                         </div>
                     </article>
 
+                </div>
+
+            </section>
+
+
+            <!-- Pedidos -->
+            <section class="admin-content-panel admin-view-section" id="admin-view-pedidos">
+
+                <div class="admin-section-heading">
+                    <div>
+                        <h2>Pedidos</h2>
+                        <p>
+                            Revisión de ventas registradas. Selecciona una fila para ver los productos
+                            comprados, cantidades, precios y total de la orden.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="admin-orders-summary">
+                    <article>
+                        <span>✅</span>
+                        <div>
+                            <strong id="admin-orders-completed">0</strong>
+                            <small>Completados</small>
+                        </div>
+                    </article>
+
+                    <article>
+                        <span>⏳</span>
+                        <div>
+                            <strong id="admin-orders-progress">0</strong>
+                            <small>En curso</small>
+                        </div>
+                    </article>
+
+                    <article>
+                        <span>❌</span>
+                        <div>
+                            <strong id="admin-orders-cancelled">0</strong>
+                            <small>Cancelados</small>
+                        </div>
+                    </article>
+                </div>
+
+
+                <div class="admin-table-card">
+
+                    <div class="admin-table-header">
+                        <div>
+                            <h3>Listado de ventas</h3>
+                            <p id="admin-orders-range">Mostrando pedidos simulados</p>
+                        </div>
+
+                        <span class="admin-table-hint">Haz clic en una venta para ver el detalle</span>
+                    </div>
+
+
+                    <div class="admin-table-responsive">
+                        <table class="admin-orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha de compra</th>
+                                    <th>Código venta</th>
+                                    <th>Trabajador</th>
+                                    <th>Estado</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="admin-orders-body">
+                                <!-- Pedidos renderizados con JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    <div class="admin-pagination" id="admin-orders-pagination" aria-label="Paginación de pedidos">
+                        <!-- Paginación renderizada con JavaScript -->
+                    </div>
+
+                </div>
+
+
+                <div class="admin-order-detail" id="admin-order-detail">
+                    <div class="admin-empty-detail">
+                        <span>🧾</span>
+                        <strong>Selecciona una venta</strong>
+                        <p>El detalle de productos comprados aparecerá en esta sección.</p>
+                    </div>
                 </div>
 
             </section>
