@@ -1177,6 +1177,135 @@ function pagarCarrito() {
   alert(`Compra simulada por $${totalFinal.toLocaleString("es-CL")}.`);
 }
 
+
+// FORMULARIO DE CONTACTO
+const formularioContacto = document.getElementById("form-contacto");
+
+if (formularioContacto) {
+
+    formularioContacto.addEventListener("submit", function (event) {
+
+        event.preventDefault();
+
+        const nombre = document
+            .getElementById("nombre-contacto")
+            .value
+            .trim();
+
+        const correo = document
+            .getElementById("correo-contacto")
+            .value
+            .trim();
+
+        const comentario = document
+            .getElementById("comentario-contacto")
+            .value
+            .trim();
+
+        const mensaje = document.getElementById("mensaje-contacto");
+
+        const errores = [];
+
+
+        // Validar nombre
+
+        if (nombre === "") {
+
+            errores.push("El nombre es obligatorio.");
+
+        } else if (nombre.length > 100) {
+
+            errores.push("El nombre no puede superar los 100 caracteres.");
+
+        }
+
+
+        // Validar correo
+
+        if (correo === "") {
+
+            errores.push("El correo es obligatorio.");
+
+        } else if (correo.includes(" -")) {
+
+            errores.push(
+                "El correo no puede contener espacios."
+            );
+
+        } else if (correo.length > 100) {
+
+            errores.push(
+                "El correo no puede superar los 100 caracteres."
+            );
+
+        } else if (!correoValidoContacto(correo)) {
+
+            errores.push(
+                "El correo debe pertenecer a @duoc.cl, " +
+                "@profesor.duoc.cl o @gmail.com."
+            );
+
+        }
+
+        // Validar comentario
+
+        if (comentario === "") {
+
+            errores.push("El comentario es obligatorio.");
+
+        } else if (comentario.length > 500) {
+
+            errores.push(
+                "El comentario no puede superar los 500 caracteres."
+            );
+
+        }
+
+
+        // Mostrar errores
+
+        if (errores.length > 0) {
+
+            mensaje.className = "alert alert-danger mt-3";
+
+            mensaje.innerHTML =
+                errores.map(
+                    (error) => "<div>⚠️ " + error + "</div>"
+                ).join("");
+
+            return;
+        }
+
+
+        // Mensaje correcto
+
+        mensaje.className = "alert alert-success mt-3";
+
+        mensaje.innerHTML =
+            "✅ Tu mensaje fue enviado correctamente.";
+
+
+        // Limpiar formulario
+
+        formularioContacto.reset();
+
+    });
+
+}
+
+// VALIDAR DOMINIO DEL CORREO
+function correoValidoContacto(correo) {
+
+    const correoMinuscula = correo.toLowerCase();
+
+    return (
+        correoMinuscula.endsWith("@duoc.cl") ||
+        correoMinuscula.endsWith("@profesor.duoc.cl") ||
+        correoMinuscula.endsWith("@gmail.com")
+    );
+
+}
+
 actualizarHeaderUsuario();
 cargarFiltrosProductos();
 mostrarProductos();
