@@ -79,6 +79,7 @@ function obtenerUsuariosIniciales() {
 
   return [
 
+    // CLIENTES
     {
       id: 1001,
       run: "123456785",
@@ -122,6 +123,53 @@ function obtenerUsuariosIniciales() {
       direccion: "Álvarez 789",
       rol: "cliente",
       descuentoDuoc: false
+    },
+
+    // ADMINISTRADOR
+    {
+      id: 2001,
+      run: "176543213",
+      nombre: "Daniel Morales",
+      fechaNacimiento: "1992-06-18",
+      email: "daniel.admin@gmail.com",
+      password: "admin123",
+      telefono: "+56944444444",
+      region: "Región Metropolitana de Santiago",
+      comuna: "Santiago",
+      direccion: "Av. Apoquindo 1200",
+      rol: "admin",
+      descuentoDuoc: false
+    },
+
+    // VENDEDORES
+    {
+      id: 3001,
+      run: "18456789K",
+      nombre: "Valentina Pérez",
+      fechaNacimiento: "1995-09-12",
+      email: "valentina.vendedor@gmail.com",
+      password: "venta123",
+      telefono: "+56955555555",
+      region: "Región Metropolitana de Santiago",
+      comuna: "Providencia",
+      direccion: "Av. Nueva Providencia 850",
+      rol: "vendedor",
+      descuentoDuoc: false
+    },
+
+    {
+      id: 3002,
+      run: "215432106",
+      nombre: "Sebastián Herrera",
+      fechaNacimiento: "1999-02-27",
+      email: "sebastian.vendedor@duoc.cl",
+      password: "venta456",
+      telefono: "+56966666666",
+      region: "Región de Valparaíso",
+      comuna: "Valparaíso",
+      direccion: "Av. Brasil 560",
+      rol: "vendedor",
+      descuentoDuoc: true
     }
 
   ];
@@ -130,20 +178,65 @@ function obtenerUsuariosIniciales() {
 
 function inicializarUsuarios() {
 
+  const usuariosIniciales =
+    obtenerUsuariosIniciales();
+
   const usuariosGuardados =
-    localStorage.getItem("usuariosLevelUp");
+    JSON.parse(
+      localStorage.getItem("usuariosLevelUp")
+    ) || [];
 
 
-  if (!usuariosGuardados) {
-
-    const usuariosIniciales =
-      obtenerUsuariosIniciales();
+  // Si todavía no existe ningún usuario,
+  // guardamos todos los iniciales
+  if (usuariosGuardados.length === 0) {
 
     localStorage.setItem(
       "usuariosLevelUp",
       JSON.stringify(usuariosIniciales)
     );
 
+    return;
+  }
+
+
+  // Buscar usuarios iniciales que todavía
+  // no existan en localStorage
+  const usuariosFaltantes =
+    usuariosIniciales.filter((usuarioInicial) => {
+
+      return !usuariosGuardados.some((usuarioGuardado) =>
+
+        String(usuarioGuardado.id) ===
+          String(usuarioInicial.id)
+
+        ||
+
+        usuarioGuardado.run ===
+          usuarioInicial.run
+
+        ||
+
+        usuarioGuardado.email ===
+          usuarioInicial.email
+      );
+
+    });
+
+
+  // Agregar solamente los que faltan
+  if (usuariosFaltantes.length > 0) {
+
+    const usuariosActualizados = [
+      ...usuariosGuardados,
+      ...usuariosFaltantes
+    ];
+
+
+    localStorage.setItem(
+      "usuariosLevelUp",
+      JSON.stringify(usuariosActualizados)
+    );
   }
 
 }
@@ -703,6 +796,97 @@ function cargarComunasUsuarioAdmin(
 
 }
 
+//MOSTRAR EMPLEADOS REGISTRADOS EN ADMIN
+function renderizarEmpleadosAdmin() {
+
+  const tbody =
+    document.getElementById("admin-employees-body");
+
+  const contador =
+    document.getElementById("admin-employees-count");
+
+
+  if (!tbody) {
+    return;
+  }
+
+
+  const empleados = obtenerUsuariosRegistrados()
+    .filter(
+      (usuario) =>
+        usuario.rol === "vendedor" ||
+        usuario.rol === "admin"
+    );
+
+
+  if (empleados.length === 0) {
+
+    tbody.innerHTML = `
+
+      <tr>
+
+        <td colspan="5"
+            class="text-center">
+
+          No hay empleados registrados.
+
+        </td>
+
+      </tr>
+
+    `;
+
+  } else {
+
+    tbody.innerHTML = empleados
+      .map((usuario) => {
+
+        return `
+
+          <tr>
+
+            <td>
+              ${usuario.run || "Sin RUN"}
+            </td>
+
+            <td>
+              ${usuario.nombre || "-"}
+            </td>
+
+            <td>
+              ${usuario.email || "-"}
+            </td>
+
+            <td>
+              ${obtenerNombreRolAdmin(usuario.rol)}
+            </td>
+
+            <td>
+              ${usuario.region || "-"}
+            </td>
+
+          </tr>
+
+        `;
+
+      })
+      .join("");
+
+  }
+
+
+  if (contador) {
+
+    contador.textContent =
+      empleados.length +
+      (empleados.length === 1
+        ? " empleado registrado"
+        : " empleados registrados");
+
+  }
+
+}
+
 //MOSTRAR USUARIOS REGISTRADOS EN ADMIN
 function renderizarUsuariosAdmin() {
 
@@ -716,7 +900,7 @@ function renderizarUsuariosAdmin() {
     return;
   }
 
-  const usuarios = obtenerUsuariosRegistrados();
+  const usuarios = obtenerUsuariosRegistrados().filter((usuario) => usuario.rol === "cliente");
 
 
   // Si no existen usuarios registrados
@@ -1421,6 +1605,7 @@ function cargarPanelAdministrador() {
   renderizarPedidosAdmin();
   cargarRegionesUsuariosAdmin();
   renderizarUsuariosAdmin();
+  renderizarEmpleadosAdmin();
 }
 
 const pedidosAdmin = crearPedidosAdmin();
