@@ -2008,7 +2008,7 @@ if (formularioContacto) {
 
             errores.push("El correo es obligatorio.");
 
-        } else if (correo.includes(" -")) {
+        } else if (correo.includes(" ")) {
 
             errores.push(
                 "El correo no puede contener espacios."
