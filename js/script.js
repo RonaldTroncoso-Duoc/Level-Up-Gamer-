@@ -1018,6 +1018,30 @@ function obtenerStockInicialAdmin(indice) {
   return stocks[indice % stocks.length];
 }
 
+function normalizarStockCritico(valor) {
+
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ) {
+
+    return null;
+  }
+
+  const numero = Number(valor);
+
+  if (
+    !Number.isInteger(numero) ||
+    numero < 0
+  ) {
+
+    return null;
+  }
+
+  return numero;
+}
+
 function obtenerInventarioAdmin() {
   const inventarioGuardado = JSON.parse(
     localStorage.getItem("inventarioLevelUpAdmin"),
@@ -1029,12 +1053,14 @@ function obtenerInventarioAdmin() {
       stock: Number.isInteger(Number(producto.stock))
         ? Number(producto.stock)
         : obtenerStockInicialAdmin(index),
+      stockCritico: normalizarStockCritico(producto.stockCritico),
     }));
   }
 
   return productos.map((producto, index) => ({
     ...producto,
     stock: obtenerStockInicialAdmin(index),
+    stockCritico: null,
   }));
 }
 
@@ -1058,6 +1084,7 @@ function obtenerProductosTienda() {
       stock: Number.isInteger(Number(producto.stock))
         ? Number(producto.stock)
         : obtenerStockInicialAdmin(index),
+      stockCritico: normalizarStockCritico(producto.stockCritico),
     }));
   }
 
@@ -1103,6 +1130,19 @@ function cargarCategoriasInventarioAdmin() {
   selectCategoria.value = valorActual;
 }
 
+function esStockCriticoAdmin(producto) {
+
+  if (
+    producto.stockCritico === null ||
+    producto.stockCritico === undefined
+  ) {
+
+    return false;
+  }
+
+  return producto.stock <= producto.stockCritico;
+}
+
 function renderizarInventarioAdmin() {
   const tbody = document.getElementById("admin-inventory-body");
   const contador = document.getElementById("admin-inventory-count");
@@ -1136,9 +1176,24 @@ function renderizarInventarioAdmin() {
             <td>${producto.categoria}</td>
             <td>${formatearPrecio(producto.precio)}</td>
             <td>
-              <span class="admin-stock-badge ${producto.stock <= 5 ? "low" : ""}">
-                ${producto.stock}
+              <span class="admin-stock-badge ${esStockCriticoAdmin(producto) ? "low" : ""}">
+                  ${producto.stock}
               </span>
+
+              <small>
+                  ${
+                    producto.stockCritico === null ||
+                    producto.stockCritico === undefined
+
+                      ? "Sin stock crítico"
+
+                      : esStockCriticoAdmin(producto)
+
+                        ? `Crítico: ${producto.stockCritico} ⚠️`
+
+                        : `Crítico: ${producto.stockCritico}`
+                  }
+              </small>
             </td>
             <td>
               <div class="admin-row-actions">
@@ -1162,16 +1217,53 @@ function renderizarInventarioAdmin() {
 }
 
 function obtenerDatosFormularioInventarioAdmin() {
+
+  const precioTexto =
+    document.getElementById("admin-product-price")?.value.trim() || "";
+
+  const stockTexto =
+    document.getElementById("admin-product-stock")?.value.trim() || "";
+
+  const stockCriticoTexto =
+    document.getElementById("admin-product-critical-stock")?.value.trim() || "";
+
   return {
-    editingId: document.getElementById("admin-product-editing-id")?.value || "",
-    id: document.getElementById("admin-product-id")?.value.trim().toUpperCase() || "",
-    nombre: document.getElementById("admin-product-name")?.value.trim() || "",
-    categoria: document.getElementById("admin-product-category")?.value || "",
-    precio: Number(document.getElementById("admin-product-price")?.value || 0),
-    stock: Number(document.getElementById("admin-product-stock")?.value || 0),
-    imagen: document.getElementById("admin-product-image")?.value.trim() || "",
+
+    editingId:
+      document.getElementById("admin-product-editing-id")?.value || "",
+
+    id:
+      document.getElementById("admin-product-id")
+        ?.value.trim().toUpperCase() || "",
+
+    nombre:
+      document.getElementById("admin-product-name")
+        ?.value.trim() || "",
+
+    categoria:
+      document.getElementById("admin-product-category")
+        ?.value || "",
+
+    precioTexto,
+    precio: Number(precioTexto),
+
+    stockTexto,
+    stock: Number(stockTexto),
+
+    stockCriticoTexto,
+
+    stockCritico:
+      stockCriticoTexto === ""
+        ? null
+        : Number(stockCriticoTexto),
+
+    imagen:
+      document.getElementById("admin-product-image")
+        ?.value.trim() || "",
+
     descripcion:
-      document.getElementById("admin-product-description")?.value.trim() || "",
+      document.getElementById("admin-product-description")
+        ?.value.trim() || "",
   };
 }
 
@@ -1190,17 +1282,105 @@ function guardarProductoInventarioAdmin() {
   const datos = obtenerDatosFormularioInventarioAdmin();
   const errores = [];
 
-  if (!datos.id) errores.push("Ingresa el código del producto.");
-  if (datos.id && !/^[A-Z0-9-]+$/.test(datos.id)) {
-    errores.push("El código solo puede usar letras, números y guiones.");
+  // Código
+
+  if (!datos.id) {
+
+    errores.push("Ingresa el código del producto.");
+
+  } else if (datos.id.length < 3) {
+
+    errores.push(
+      "El código debe tener al menos 3 caracteres."
+    );
+
+  } else if (!/^[A-Z0-9-]+$/.test(datos.id)) {
+
+    errores.push(
+      "El código solo puede usar letras, números y guiones."
+    );
   }
-  if (!datos.nombre) errores.push("Ingresa el nombre del producto.");
-  if (!datos.categoria) errores.push("Selecciona una categoría.");
-  if (!datos.imagen) errores.push("Ingresa una ruta o URL de imagen.");
-  if (!datos.descripcion) errores.push("Ingresa la descripción del producto.");
-  if (datos.precio <= 0) errores.push("El precio debe ser mayor a 0.");
-  if (!Number.isInteger(datos.stock) || datos.stock < 0) {
-    errores.push("El stock debe ser un número entero igual o mayor a 0.");
+
+
+  // Nombre
+
+  if (!datos.nombre) {
+
+    errores.push("Ingresa el nombre del producto.");
+
+  } else if (datos.nombre.length > 100) {
+
+    errores.push(
+      "El nombre no puede superar los 100 caracteres."
+    );
+  }
+
+
+  // Categoría
+
+  if (!datos.categoria) {
+
+    errores.push("Selecciona una categoría.");
+  }
+
+
+  // Precio
+
+  if (datos.precioTexto === "") {
+
+    errores.push("Ingresa el precio del producto.");
+
+  } else if (
+    Number.isNaN(datos.precio) ||
+    datos.precio < 0
+  ) {
+
+    errores.push(
+      "El precio debe ser un número igual o mayor a 0."
+    );
+  }
+
+
+  // Stock
+
+  if (datos.stockTexto === "") {
+
+    errores.push("Ingresa el stock del producto.");
+
+  } else if (
+    !Number.isInteger(datos.stock) ||
+    datos.stock < 0
+  ) {
+
+    errores.push(
+      "El stock debe ser un número entero igual o mayor a 0."
+    );
+  }
+
+
+  // Stock crítico
+
+  if (
+    datos.stockCriticoTexto !== "" &&
+    (
+      !Number.isInteger(datos.stockCritico) ||
+      datos.stockCritico < 0
+    )
+  ) {
+
+    errores.push(
+      "El stock crítico debe ser un número entero igual o mayor a 0."
+    );
+  }
+
+
+  // Descripción
+
+  if (datos.descripcion.length > 500) {
+
+    errores.push(
+      "La descripción no puede superar los 500 caracteres."
+    );
   }
 
   const codigoDuplicado = inventarioAdmin.some(
@@ -1217,13 +1397,23 @@ function guardarProductoInventarioAdmin() {
   }
 
   const productoGuardado = {
+
     id: datos.id,
+
     nombre: datos.nombre,
+
     categoria: datos.categoria,
+
     precio: datos.precio,
-    imagen: datos.imagen,
+
+    imagen:
+      datos.imagen || "img/LOGO-LEVEL-UP-GAMER.png",
+
     descripcion: datos.descripcion,
+
     stock: datos.stock,
+
+    stockCritico: datos.stockCritico,
   };
 
   if (datos.editingId) {
@@ -1256,6 +1446,7 @@ function editarProductoInventarioAdmin(idProducto) {
   document.getElementById("admin-product-category").value = producto.categoria;
   document.getElementById("admin-product-price").value = producto.precio;
   document.getElementById("admin-product-stock").value = producto.stock;
+  document.getElementById("admin-product-critical-stock").value = producto.stockCritico ?? "";
   document.getElementById("admin-product-image").value = producto.imagen;
   document.getElementById("admin-product-description").value = producto.descripcion;
 

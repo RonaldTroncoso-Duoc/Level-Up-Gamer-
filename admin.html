@@ -385,42 +385,76 @@
                             <input type="hidden" id="admin-product-editing-id">
 
                             <div class="admin-form-grid">
+
                                 <label>
                                     Código *
-                                    <input type="text" id="admin-product-id" maxlength="20" placeholder="Ej: AC003">
+                                    <input type="text"
+                                        id="admin-product-id"
+                                        minlength="3"
+                                        maxlength="20"
+                                        placeholder="Ej: AC003">
                                 </label>
 
                                 <label>
                                     Nombre *
-                                    <input type="text" id="admin-product-name" maxlength="100" placeholder="Nombre del producto">
+                                    <input type="text"
+                                        id="admin-product-name"
+                                        maxlength="100"
+                                        placeholder="Nombre del producto">
                                 </label>
 
                                 <label>
                                     Categoría *
                                     <select id="admin-product-category">
-                                        <option value="">Selecciona una categoría</option>
+                                        <option value="">
+                                            Selecciona una categoría
+                                        </option>
                                     </select>
                                 </label>
 
                                 <label>
                                     Precio *
-                                    <input type="number" id="admin-product-price" min="0" step="1" placeholder="Precio CLP">
+                                    <input type="number"
+                                        id="admin-product-price"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Precio CLP">
                                 </label>
 
                                 <label>
                                     Stock *
-                                    <input type="number" id="admin-product-stock" min="0" step="1" placeholder="Cantidad disponible">
+                                    <input type="number"
+                                        id="admin-product-stock"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Cantidad disponible">
+                                </label>
+
+                                <label>
+                                    Stock crítico
+                                    <input type="number"
+                                        id="admin-product-critical-stock"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Opcional">
                                 </label>
 
                                 <label class="admin-form-full">
-                                    Imagen *
-                                    <input type="text" id="admin-product-image" maxlength="250" placeholder="Ruta o URL de imagen">
+                                    Imagen
+                                    <input type="text"
+                                        id="admin-product-image"
+                                        maxlength="250"
+                                        placeholder="Ruta o URL de imagen (opcional)">
                                 </label>
 
                                 <label class="admin-form-full">
-                                    Descripción *
-                                    <textarea id="admin-product-description" maxlength="500" rows="4" placeholder="Descripción del producto"></textarea>
+                                    Descripción
+                                    <textarea id="admin-product-description"
+                                            maxlength="500"
+                                            rows="4"
+                                            placeholder="Descripción del producto (opcional)"></textarea>
                                 </label>
+
                             </div>
 
                             <div id="admin-inventory-message" class="admin-form-message"></div>
