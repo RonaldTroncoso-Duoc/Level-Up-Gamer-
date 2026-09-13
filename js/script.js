@@ -471,6 +471,8 @@ function cargarPanelAdministrador() {
     totalUsuarios.textContent = usuariosRegistrados.length;
   }
 
+  cargarCategoriasInventarioAdmin();
+  renderizarInventarioAdmin();
   actualizarDashboardAdmin();
   inicializarNavegacionAdmin();
   renderizarResumenPedidosAdmin();
@@ -879,6 +881,315 @@ const productos = [
   },
 ];
 
+let inventarioAdmin = obtenerInventarioAdmin();
+
+function obtenerStockInicialAdmin(indice) {
+  const stocks = [18, 14, 22, 16, 9, 6, 11, 25, 20, 30];
+  return stocks[indice % stocks.length];
+}
+
+function obtenerInventarioAdmin() {
+  const inventarioGuardado = JSON.parse(
+    localStorage.getItem("inventarioLevelUpAdmin"),
+  );
+
+  if (inventarioGuardado && Array.isArray(inventarioGuardado)) {
+    return inventarioGuardado.map((producto, index) => ({
+      ...producto,
+      stock: Number.isInteger(Number(producto.stock))
+        ? Number(producto.stock)
+        : obtenerStockInicialAdmin(index),
+    }));
+  }
+
+  return productos.map((producto, index) => ({
+    ...producto,
+    stock: obtenerStockInicialAdmin(index),
+  }));
+}
+
+function guardarInventarioAdmin() {
+  localStorage.setItem("inventarioLevelUpAdmin", JSON.stringify(inventarioAdmin));
+}
+
+function guardarInventarioTienda(productosInventario) {
+  inventarioAdmin = productosInventario;
+  localStorage.setItem("inventarioLevelUpAdmin", JSON.stringify(productosInventario));
+}
+
+function obtenerProductosTienda() {
+  const inventarioGuardado = JSON.parse(
+    localStorage.getItem("inventarioLevelUpAdmin"),
+  );
+
+  if (inventarioGuardado && Array.isArray(inventarioGuardado)) {
+    return inventarioGuardado.map((producto, index) => ({
+      ...producto,
+      stock: Number.isInteger(Number(producto.stock))
+        ? Number(producto.stock)
+        : obtenerStockInicialAdmin(index),
+    }));
+  }
+
+  return inventarioAdmin;
+}
+
+function obtenerProductoTienda(idProducto) {
+  return obtenerProductosTienda().find((producto) => producto.id === idProducto) || null;
+}
+
+function obtenerStockDisponibleProducto(idProducto) {
+  const producto = obtenerProductoTienda(idProducto);
+  return producto ? Number(producto.stock) || 0 : 0;
+}
+
+function obtenerCategoriasInventarioAdmin() {
+  return [
+    ...new Set([
+      ...productos.map((producto) => producto.categoria),
+      ...inventarioAdmin.map((producto) => producto.categoria),
+    ]),
+  ];
+}
+
+function cargarCategoriasInventarioAdmin() {
+  const selectCategoria = document.getElementById("admin-product-category");
+
+  if (!selectCategoria) {
+    return;
+  }
+
+  const valorActual = selectCategoria.value;
+
+  selectCategoria.innerHTML = '<option value="">Selecciona una categoría</option>';
+
+  obtenerCategoriasInventarioAdmin().forEach((categoria) => {
+    const option = document.createElement("option");
+    option.value = categoria;
+    option.textContent = categoria;
+    selectCategoria.appendChild(option);
+  });
+
+  selectCategoria.value = valorActual;
+}
+
+function renderizarInventarioAdmin() {
+  const tbody = document.getElementById("admin-inventory-body");
+  const contador = document.getElementById("admin-inventory-count");
+  const productosActivos = document.getElementById("admin-dashboard-products-active");
+
+  if (!tbody) {
+    return;
+  }
+
+  if (inventarioAdmin.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="admin-empty-table">
+          No hay productos registrados. Usa el formulario para agregar el primer producto.
+        </td>
+      </tr>
+    `;
+  } else {
+    tbody.innerHTML = inventarioAdmin
+      .map(
+        (producto) => `
+          <tr>
+            <td>
+              <img src="${producto.imagen}" alt="${producto.nombre}" class="admin-inventory-img">
+            </td>
+            <td><strong>${producto.id}</strong></td>
+            <td>
+              <strong>${producto.nombre}</strong>
+              <small>${producto.descripcion}</small>
+            </td>
+            <td>${producto.categoria}</td>
+            <td>${formatearPrecio(producto.precio)}</td>
+            <td>
+              <span class="admin-stock-badge ${producto.stock <= 5 ? "low" : ""}">
+                ${producto.stock}
+              </span>
+            </td>
+            <td>
+              <div class="admin-row-actions">
+                <button type="button" onclick="editarProductoInventarioAdmin('${producto.id}')">Editar</button>
+                <button type="button" class="danger" onclick="eliminarProductoInventarioAdmin('${producto.id}')">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        `,
+      )
+      .join("");
+  }
+
+  if (contador) {
+    contador.textContent = `${inventarioAdmin.length} productos en inventario`;
+  }
+
+  if (productosActivos) {
+    productosActivos.textContent = inventarioAdmin.length;
+  }
+}
+
+function obtenerDatosFormularioInventarioAdmin() {
+  return {
+    editingId: document.getElementById("admin-product-editing-id")?.value || "",
+    id: document.getElementById("admin-product-id")?.value.trim().toUpperCase() || "",
+    nombre: document.getElementById("admin-product-name")?.value.trim() || "",
+    categoria: document.getElementById("admin-product-category")?.value || "",
+    precio: Number(document.getElementById("admin-product-price")?.value || 0),
+    stock: Number(document.getElementById("admin-product-stock")?.value || 0),
+    imagen: document.getElementById("admin-product-image")?.value.trim() || "",
+    descripcion:
+      document.getElementById("admin-product-description")?.value.trim() || "",
+  };
+}
+
+function mostrarMensajeInventarioAdmin(mensaje, tipo = "error") {
+  const contenedor = document.getElementById("admin-inventory-message");
+
+  if (!contenedor) {
+    return;
+  }
+
+  contenedor.className = `admin-form-message ${tipo}`;
+  contenedor.textContent = mensaje;
+}
+
+function guardarProductoInventarioAdmin() {
+  const datos = obtenerDatosFormularioInventarioAdmin();
+  const errores = [];
+
+  if (!datos.id) errores.push("Ingresa el código del producto.");
+  if (datos.id && !/^[A-Z0-9-]+$/.test(datos.id)) {
+    errores.push("El código solo puede usar letras, números y guiones.");
+  }
+  if (!datos.nombre) errores.push("Ingresa el nombre del producto.");
+  if (!datos.categoria) errores.push("Selecciona una categoría.");
+  if (!datos.imagen) errores.push("Ingresa una ruta o URL de imagen.");
+  if (!datos.descripcion) errores.push("Ingresa la descripción del producto.");
+  if (datos.precio <= 0) errores.push("El precio debe ser mayor a 0.");
+  if (!Number.isInteger(datos.stock) || datos.stock < 0) {
+    errores.push("El stock debe ser un número entero igual o mayor a 0.");
+  }
+
+  const codigoDuplicado = inventarioAdmin.some(
+    (producto) => producto.id === datos.id && producto.id !== datos.editingId,
+  );
+
+  if (codigoDuplicado) {
+    errores.push("Ya existe un producto con ese código.");
+  }
+
+  if (errores.length > 0) {
+    mostrarMensajeInventarioAdmin(errores.join(" "));
+    return false;
+  }
+
+  const productoGuardado = {
+    id: datos.id,
+    nombre: datos.nombre,
+    categoria: datos.categoria,
+    precio: datos.precio,
+    imagen: datos.imagen,
+    descripcion: datos.descripcion,
+    stock: datos.stock,
+  };
+
+  if (datos.editingId) {
+    inventarioAdmin = inventarioAdmin.map((producto) =>
+      producto.id === datos.editingId ? productoGuardado : producto,
+    );
+    mostrarMensajeInventarioAdmin("Producto actualizado correctamente.", "success");
+  } else {
+    inventarioAdmin.push(productoGuardado);
+    mostrarMensajeInventarioAdmin("Producto agregado correctamente.", "success");
+  }
+
+  guardarInventarioAdmin();
+  cargarCategoriasInventarioAdmin();
+  renderizarInventarioAdmin();
+  limpiarFormularioInventarioAdmin(false);
+  return false;
+}
+
+function editarProductoInventarioAdmin(idProducto) {
+  const producto = inventarioAdmin.find((item) => item.id === idProducto);
+
+  if (!producto) {
+    return;
+  }
+
+  document.getElementById("admin-product-editing-id").value = producto.id;
+  document.getElementById("admin-product-id").value = producto.id;
+  document.getElementById("admin-product-name").value = producto.nombre;
+  document.getElementById("admin-product-category").value = producto.categoria;
+  document.getElementById("admin-product-price").value = producto.precio;
+  document.getElementById("admin-product-stock").value = producto.stock;
+  document.getElementById("admin-product-image").value = producto.imagen;
+  document.getElementById("admin-product-description").value = producto.descripcion;
+
+  const titulo = document.getElementById("admin-inventory-form-title");
+  if (titulo) {
+    titulo.textContent = "Editar producto";
+  }
+
+  mostrarMensajeInventarioAdmin(`Editando ${producto.nombre}.`, "info");
+}
+
+function eliminarProductoInventarioAdmin(idProducto) {
+  const producto = inventarioAdmin.find((item) => item.id === idProducto);
+
+  if (!producto) {
+    return;
+  }
+
+  const confirmar = confirm(`¿Eliminar ${producto.nombre} del inventario?`);
+
+  if (!confirmar) {
+    return;
+  }
+
+  inventarioAdmin = inventarioAdmin.filter((item) => item.id !== idProducto);
+  guardarInventarioAdmin();
+  renderizarInventarioAdmin();
+  limpiarFormularioInventarioAdmin(false);
+  mostrarMensajeInventarioAdmin("Producto eliminado correctamente.", "success");
+}
+
+function limpiarFormularioInventarioAdmin(limpiarMensaje = true) {
+  const formulario = document.getElementById("admin-inventory-form");
+  const titulo = document.getElementById("admin-inventory-form-title");
+  const mensaje = document.getElementById("admin-inventory-message");
+
+  if (formulario) {
+    formulario.reset();
+  }
+
+  const editingId = document.getElementById("admin-product-editing-id");
+  if (editingId) {
+    editingId.value = "";
+  }
+
+  if (titulo) {
+    titulo.textContent = "Agregar producto";
+  }
+
+  if (mensaje && limpiarMensaje) {
+    mensaje.className = "admin-form-message";
+    mensaje.textContent = "";
+  }
+}
+
+function prepararNuevoProductoAdmin() {
+  limpiarFormularioInventarioAdmin();
+  const codigo = document.getElementById("admin-product-id");
+
+  if (codigo) {
+    codigo.focus();
+  }
+}
+
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let descuentoAplicado =
   JSON.parse(localStorage.getItem("descuentoAplicado")) || null;
@@ -897,7 +1208,7 @@ const detalleProducto = document.getElementById("detalle-producto");
 const productosSimilares = document.getElementById("productos-similares");
 
 function obtenerProductosFiltrados() {
-  let productosFiltrados = [...productos];
+  let productosFiltrados = [...obtenerProductosTienda()];
 
   if (filtroCategoria && filtroCategoria.value !== "") {
     productosFiltrados = productosFiltrados.filter(
@@ -924,7 +1235,7 @@ function cargarFiltrosProductos() {
   }
 
   const categorias = [
-    ...new Set(productos.map((producto) => producto.categoria)),
+    ...new Set(obtenerProductosTienda().map((producto) => producto.categoria)),
   ];
 
   categorias.forEach((categoria) => {
@@ -963,6 +1274,7 @@ function cargarFiltrosProductos() {
 
 function crearCardProducto(producto) {
   const div = document.createElement("div");
+  const sinStock = producto.stock <= 0;
 
   div.className = "col-12 col-sm-6 col-lg-4";
 
@@ -991,11 +1303,16 @@ function crearCardProducto(producto) {
           $${producto.precio.toLocaleString("es-CL")}
         </p>
 
+        <p class="product-stock ${sinStock ? "out" : ""}">
+          ${sinStock ? "Sin stock disponible" : `Stock disponible: ${producto.stock}`}
+        </p>
+
         <button
           type="button"
           class="btn btn-outline-dark mt-auto"
+          ${sinStock ? "disabled" : ""}
           onclick="agregarAlCarrito('${producto.id}')">
-          Agregar al carrito
+          ${sinStock ? "No disponible" : "Agregar al carrito"}
         </button>
 
       </div>
@@ -1013,7 +1330,7 @@ function mostrarProductos() {
 
   productList.innerHTML = "";
 
-  const limite = Number(productList.dataset.limit) || productos.length;
+  const limite = Number(productList.dataset.limit) || obtenerProductosTienda().length;
   const productosAMostrar = obtenerProductosFiltrados().slice(0, limite);
 
   if (productosAMostrar.length === 0) {
@@ -1028,18 +1345,35 @@ function mostrarProductos() {
 }
 
 function agregarAlCarrito(id, cantidad = 1) {
-  const producto = productos.find((p) => p.id === id);
+  const producto = obtenerProductoTienda(id);
 
   if (!producto) {
+    alert("Este producto ya no está disponible en la tienda.");
     return;
   }
 
   const cantidadNumerica = Number(cantidad) || 1;
   const cantidadAgregar = Math.max(1, cantidadNumerica);
   const item = carrito.find((p) => p.id === id);
+  const cantidadActual = item ? item.cantidad : 0;
+
+  if (producto.stock <= 0) {
+    alert("Este producto no tiene stock disponible.");
+    return;
+  }
+
+  if (cantidadActual + cantidadAgregar > producto.stock) {
+    alert(`Solo hay ${producto.stock} unidad(es) disponibles de ${producto.nombre}.`);
+    return;
+  }
 
   if (item) {
     item.cantidad += cantidadAgregar;
+    item.nombre = producto.nombre;
+    item.categoria = producto.categoria;
+    item.precio = producto.precio;
+    item.imagen = producto.imagen;
+    item.descripcion = producto.descripcion;
   } else {
     carrito.push({ ...producto, cantidad: cantidadAgregar });
   }
@@ -1051,7 +1385,7 @@ function obtenerProductoDesdeUrl() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
 
-  return productos.find((producto) => producto.id === id) || null;
+  return obtenerProductoTienda(id);
 }
 
 function mostrarDetalleProducto() {
@@ -1072,6 +1406,12 @@ function mostrarDetalleProducto() {
   }
 
   document.title = `${producto.nombre} - Level-Up Gamer`;
+  const sinStock = producto.stock <= 0;
+  const cantidadMaxima = Math.min(producto.stock, 10);
+  const opcionesCantidad = Array.from(
+    { length: cantidadMaxima },
+    (_, index) => index + 1,
+  );
 
   detalleProducto.innerHTML = `
     <nav aria-label="breadcrumb" class="mb-4">
@@ -1098,6 +1438,10 @@ function mostrarDetalleProducto() {
               $${producto.precio.toLocaleString("es-CL")}
             </p>
 
+            <p class="product-stock detail ${sinStock ? "out" : ""}">
+              ${sinStock ? "Sin stock disponible" : `Stock disponible: ${producto.stock}`}
+            </p>
+
             <hr class="detail-divider">
 
             <p class="text-muted mb-4">
@@ -1110,7 +1454,7 @@ function mostrarDetalleProducto() {
               Cantidad
             </label>
             <select id="cantidad-producto" class="form-select detail-quantity mb-4">
-              ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              ${opcionesCantidad
                 .map(
                   (cantidad) =>
                     `<option value="${cantidad}">${cantidad}</option>`,
@@ -1120,8 +1464,9 @@ function mostrarDetalleProducto() {
 
             <button type="button"
                     class="btn btn-success btn-lg"
+                    ${sinStock ? "disabled" : ""}
                     onclick="agregarDetalleAlCarrito('${producto.id}')">
-              Añadir al carrito
+              ${sinStock ? "No disponible" : "Añadir al carrito"}
             </button>
           </div>
         </div>
@@ -1144,7 +1489,7 @@ function mostrarProductosSimilares(productoActual) {
     return;
   }
 
-  const similares = productos
+  const similares = obtenerProductosTienda()
     .filter(
       (producto) =>
         producto.categoria === productoActual.categoria &&
@@ -1200,6 +1545,42 @@ function mostrarProductosSimilares(productoActual) {
 
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
+}
+
+function sincronizarCarritoConInventario() {
+  let carritoCambiado = false;
+
+  carrito = carrito
+    .map((item) => {
+      const productoActual = obtenerProductoTienda(item.id);
+
+      if (!productoActual || productoActual.stock <= 0) {
+        carritoCambiado = true;
+        return null;
+      }
+
+      const cantidadAjustada = Math.min(item.cantidad, productoActual.stock);
+
+      if (
+        cantidadAjustada !== item.cantidad ||
+        item.nombre !== productoActual.nombre ||
+        item.precio !== productoActual.precio ||
+        item.imagen !== productoActual.imagen ||
+        item.descripcion !== productoActual.descripcion
+      ) {
+        carritoCambiado = true;
+      }
+
+      return {
+        ...productoActual,
+        cantidad: cantidadAjustada,
+      };
+    })
+    .filter(Boolean);
+
+  if (carritoCambiado) {
+    guardarCarrito();
+  }
 }
 
 function calcularTotalCarrito() {
@@ -1264,6 +1645,8 @@ function sincronizarCarrito() {
 }
 
 function mostrarCarrito() {
+  sincronizarCarritoConInventario();
+
   if (!cartList) {
     actualizarContadorCarrito();
     actualizarResumenCompra();
@@ -1295,6 +1678,8 @@ function mostrarCarrito() {
 function mostrarResumenCarrito() {
   carrito.forEach((item) => {
     const div = document.createElement("div");
+    const stockDisponible = obtenerStockDisponibleProducto(item.id);
+    const stockMaximoAlcanzado = item.cantidad >= stockDisponible;
 
     div.className = "cart-item border-bottom pb-3 mb-3";
 
@@ -1321,6 +1706,7 @@ function mostrarResumenCarrito() {
 
           <button type="button"
                   class="btn btn-outline-secondary"
+                  ${stockMaximoAlcanzado ? "disabled" : ""}
                   onclick="agregarAlCarrito('${item.id}')">
             +
           </button>
@@ -1338,6 +1724,10 @@ function mostrarResumenCarrito() {
       <p class="fw-bold mb-0 mt-2">
         Subtotal: $${(item.precio * item.cantidad).toLocaleString("es-CL")}
       </p>
+
+      <small class="text-muted d-block mt-1">
+        Stock disponible: ${stockDisponible}
+      </small>
     `;
 
     cartList.appendChild(div);
@@ -1355,6 +1745,8 @@ function mostrarResumenCarrito() {
 function mostrarCarritoDetallado() {
   carrito.forEach((item) => {
     const div = document.createElement("div");
+    const stockDisponible = obtenerStockDisponibleProducto(item.id);
+    const stockMaximoAlcanzado = item.cantidad >= stockDisponible;
 
     div.className = "card mb-3";
 
@@ -1402,6 +1794,7 @@ function mostrarCarritoDetallado() {
 
               <button type="button"
                       class="btn btn-outline-secondary"
+                      ${stockMaximoAlcanzado ? "disabled" : ""}
                       onclick="agregarAlCarrito('${item.id}')">
                 +
               </button>
@@ -1411,6 +1804,10 @@ function mostrarCarritoDetallado() {
             <p class="fw-bold mb-2">
               Subtotal: $${(item.precio * item.cantidad).toLocaleString("es-CL")}
             </p>
+
+            <small class="text-muted d-block mb-2">
+              Stock disponible: ${stockDisponible}
+            </small>
 
             <button type="button"
                     class="btn btn-sm btn-outline-danger"
@@ -1474,6 +1871,23 @@ function vaciarCarrito() {
   sincronizarCarrito();
 }
 
+function descontarStockCarrito() {
+  const inventarioActualizado = obtenerProductosTienda().map((producto) => {
+    const itemCarrito = carrito.find((item) => item.id === producto.id);
+
+    if (!itemCarrito) {
+      return producto;
+    }
+
+    return {
+      ...producto,
+      stock: Math.max(0, producto.stock - itemCarrito.cantidad),
+    };
+  });
+
+  guardarInventarioTienda(inventarioActualizado);
+}
+
 function aplicarDescuento() {
   if (!codigoDescuento || !mensajeDescuento || !aplicarDescuentoBtn) {
     return;
@@ -1529,6 +1943,8 @@ function aplicarDescuento() {
 }
 
 function pagarCarrito() {
+  sincronizarCarritoConInventario();
+
   if (carrito.length === 0) {
     alert("El carrito está vacío. Agrega productos antes de pagar.");
     return;
@@ -1537,6 +1953,10 @@ function pagarCarrito() {
   const totalFinal = calcularTotalConDescuento();
 
   alert(`Compra simulada por $${totalFinal.toLocaleString("es-CL")}.`);
+  descontarStockCarrito();
+  vaciarCarrito();
+  mostrarProductos();
+  mostrarDetalleProducto();
 }
 
 

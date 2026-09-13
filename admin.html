@@ -53,7 +53,7 @@
                     <span>Pedidos</span>
                 </a>
 
-                <a href="#" class="admin-menu-link">
+                <a href="#" class="admin-menu-link" data-admin-view="inventario">
                     <span class="admin-menu-icon">📦</span>
                     <span>Inventario</span>
                 </a>
@@ -160,8 +160,8 @@
                     <article class="admin-stat-card">
                         <span class="admin-stat-icon">📦</span>
                         <p>Productos activos</p>
-                        <strong>10</strong>
-                        <small>Catálogo público disponible</small>
+                        <strong id="admin-dashboard-products-active">0</strong>
+                        <small>Inventario disponible</small>
                     </article>
 
                     <article class="admin-stat-card">
@@ -316,6 +316,123 @@
                     <div class="admin-pagination" id="admin-orders-pagination" aria-label="Paginación de pedidos">
                         <!-- Paginación renderizada con JavaScript -->
                     </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Inventario -->
+            <section class="admin-content-panel admin-view-section" id="admin-view-inventario">
+
+                <div class="admin-section-heading">
+                    <div>
+                        <h2>Inventario</h2>
+                        <p>
+                            Administra los productos disponibles de Level-Up Gamer. Puedes agregar,
+                            editar o eliminar productos del inventario administrativo.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="admin-inventory-layout">
+
+                    <div class="admin-table-card">
+
+                        <div class="admin-table-header">
+                            <div>
+                                <h3>Productos registrados</h3>
+                                <p id="admin-inventory-count">Inventario basado en el catálogo actual</p>
+                            </div>
+
+                            <button type="button" class="admin-primary-btn" onclick="prepararNuevoProductoAdmin()">
+                                + Nuevo producto
+                            </button>
+                        </div>
+
+
+                        <div class="admin-table-responsive">
+                            <table class="admin-inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Imagen</th>
+                                        <th>Código</th>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="admin-inventory-body">
+                                    <!-- Inventario renderizado con JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+
+                    <aside class="admin-form-card">
+                        <div class="admin-form-header">
+                            <p>Formulario de producto</p>
+                            <h3 id="admin-inventory-form-title">Agregar producto</h3>
+                        </div>
+
+                        <form id="admin-inventory-form" onsubmit="return guardarProductoInventarioAdmin()" novalidate>
+                            <input type="hidden" id="admin-product-editing-id">
+
+                            <div class="admin-form-grid">
+                                <label>
+                                    Código *
+                                    <input type="text" id="admin-product-id" maxlength="20" placeholder="Ej: AC003">
+                                </label>
+
+                                <label>
+                                    Nombre *
+                                    <input type="text" id="admin-product-name" maxlength="100" placeholder="Nombre del producto">
+                                </label>
+
+                                <label>
+                                    Categoría *
+                                    <select id="admin-product-category">
+                                        <option value="">Selecciona una categoría</option>
+                                    </select>
+                                </label>
+
+                                <label>
+                                    Precio *
+                                    <input type="number" id="admin-product-price" min="0" step="1" placeholder="Precio CLP">
+                                </label>
+
+                                <label>
+                                    Stock *
+                                    <input type="number" id="admin-product-stock" min="0" step="1" placeholder="Cantidad disponible">
+                                </label>
+
+                                <label class="admin-form-full">
+                                    Imagen *
+                                    <input type="text" id="admin-product-image" maxlength="250" placeholder="Ruta o URL de imagen">
+                                </label>
+
+                                <label class="admin-form-full">
+                                    Descripción *
+                                    <textarea id="admin-product-description" maxlength="500" rows="4" placeholder="Descripción del producto"></textarea>
+                                </label>
+                            </div>
+
+                            <div id="admin-inventory-message" class="admin-form-message"></div>
+
+                            <div class="admin-form-actions">
+                                <button type="submit" class="admin-primary-btn">Guardar producto</button>
+                                <button type="button" class="admin-secondary-btn" onclick="limpiarFormularioInventarioAdmin()">
+                                    Limpiar
+                                </button>
+                            </div>
+                        </form>
+                    </aside>
 
                 </div>
 
