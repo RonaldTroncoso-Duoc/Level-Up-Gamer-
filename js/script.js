@@ -174,12 +174,14 @@ function validarLogin() {
   }
 
   guardarUsuarioActivo({
+    run: usuarioPorCorreo.run,
     nombre: usuarioPorCorreo.nombre,
     email: usuarioPorCorreo.email,
     telefono: usuarioPorCorreo.telefono,
     region: usuarioPorCorreo.region,
     comuna: usuarioPorCorreo.comuna,
-    rol: "cliente",
+    direccion: usuarioPorCorreo.direccion,
+    rol: usuarioPorCorreo.rol || "cliente",
     descuentoDuoc: usuarioPorCorreo.descuentoDuoc,
   });
 
@@ -195,22 +197,93 @@ function validarLogin() {
   return false;
 }
 
+function validarRun(run) {
+
+  const runLimpio = run.toUpperCase();
+
+  const formatoRun = /^[0-9]{6,8}[0-9K]$/;
+
+  if (!formatoRun.test(runLimpio)) {
+    return false;
+  }
+
+  const cuerpo = runLimpio.slice(0, -1);
+  const digitoIngresado = runLimpio.slice(-1);
+
+  let suma = 0;
+  let multiplicador = 2;
+
+
+  for (let i = cuerpo.length - 1; i >= 0; i--) {
+
+    suma += Number(cuerpo[i]) * multiplicador;
+
+    multiplicador++;
+
+    if (multiplicador > 7) {
+      multiplicador = 2;
+    }
+  }
+
+
+  const resto = 11 - (suma % 11);
+
+  let digitoCalculado;
+
+  if (resto === 11) {
+
+    digitoCalculado = "0";
+
+  } else if (resto === 10) {
+
+    digitoCalculado = "K";
+
+  } else {
+
+    digitoCalculado = String(resto);
+  }
+
+
+  return digitoIngresado === digitoCalculado;
+}
+
 function registrarUsuario() {
   const errores = [];
 
-  const nombre = document.getElementById("nombre")?.value.trim() || "";
+  const run =
+    document.getElementById("run")?.value.trim().toUpperCase() || "";
+
+  const nombre =
+    document.getElementById("nombre")?.value.trim() || "";
+
   const fechaNacimientoTexto =
     document.getElementById("fechaNacimiento")?.value || "";
+
   const email =
     document.getElementById("email")?.value.trim().toLowerCase() || "";
-  const password = document.getElementById("password")?.value.trim() || "";
+
+  const password =
+    document.getElementById("password")?.value.trim() || "";
+
   const confirmPassword =
     document.getElementById("confirmPassword")?.value.trim() || "";
-  const telefono = document.getElementById("telefono")?.value.trim() || "";
-  const region = document.getElementById("region")?.value || "";
-  const comuna = document.getElementById("comuna")?.value || "";
 
+  const telefono =
+    document.getElementById("telefono")?.value.trim() || "";
+
+  const region =
+    document.getElementById("region")?.value || "";
+
+  const comuna =
+    document.getElementById("comuna")?.value || "";
+
+  const direccion =
+    document.getElementById("direccion")?.value.trim() || "";
+
+  const rol = "cliente";
+  
   const camposObligatorios = [
+    run,
     nombre,
     fechaNacimientoTexto,
     email,
@@ -225,6 +298,31 @@ function registrarUsuario() {
 
   if (todosLosCamposObligatoriosVacios) {
     errores.push("Por favor, completa todos los campos obligatorios.");
+  }
+
+  // Validar RUN
+
+  if (run === "") {
+
+    errores.push("El RUN es obligatorio.");
+
+  } else if (run.includes(".") || run.includes("-")) {
+
+    errores.push(
+      "El RUN debe ingresarse sin puntos ni guion."
+    );
+
+  } else if (run.length < 7 || run.length > 9) {
+
+    errores.push(
+      "El RUN debe tener entre 7 y 9 caracteres."
+    );
+
+  } else if (!validarRun(run)) {
+
+    errores.push(
+      "El RUN ingresado no es válido."
+    );
   }
 
   if (nombre === "") {
@@ -288,11 +386,32 @@ function registrarUsuario() {
     errores.push("Debes seleccionar una comuna.");
   }
 
+  if (direccion === "") {
+
+    errores.push("La dirección es obligatoria.");
+
+  } else if (direccion.length > 300) {
+
+    errores.push(
+      "La dirección no puede superar los 300 caracteres."
+    );
+  }
+
   const usuarios = obtenerUsuariosRegistrados();
   const usuarioYaExiste = usuarios.some((usuario) => usuario.email === email);
 
   if (usuarioYaExiste) {
     errores.push("Ya existe una cuenta registrada con ese correo.");
+  }
+
+  const runYaExiste = usuarios.some(
+    (usuario) => usuario.run === run
+  );
+
+  if (runYaExiste) {
+    errores.push(
+      "Ya existe una cuenta registrada con ese RUN."
+    );
   }
 
   if (errores.length > 0) {
@@ -305,6 +424,7 @@ function registrarUsuario() {
 
   const nuevoUsuario = {
     id: Date.now(),
+    run,
     nombre,
     fechaNacimiento: fechaNacimientoTexto,
     email,
@@ -312,6 +432,8 @@ function registrarUsuario() {
     telefono,
     region,
     comuna,
+    direccion,
+    rol,
     descuentoDuoc,
   };
 
@@ -320,6 +442,10 @@ function registrarUsuario() {
 
   mostrarExito(
     "✅ Registro realizado correctamente.<br><br>" +
+      "¡Bienvenido a Level-Up Gamer!<br><br>" +
+      "RUN: " +
+      run +
+      "<br>" +
       "Nombre: " +
       nombre +
       "<br>" +
@@ -332,6 +458,10 @@ function registrarUsuario() {
       "Comuna: " +
       comuna +
       "<br>" +
+      "Dirección: " +
+      direccion +
+      "<br>" +
+      "Tipo de usuario: Cliente<br>" +
       (telefono ? "Teléfono: " + telefono + "<br>" : "") +
       (descuentoDuoc ? "Beneficio: descuento Duoc 20% registrado.<br>" : "") +
       '<br><a href="login.html">Ir a iniciar sesión</a>',

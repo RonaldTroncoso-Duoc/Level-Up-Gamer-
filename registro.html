@@ -115,6 +115,15 @@
                 <div class="row g-3">
 
                     <div class="col-md-6">
+                        <label for="run" class="form-label">RUN</label>
+                        <input type="text" id="run" class="form-control" maxlength="9" placeholder="Ej: 123456785">
+
+                        <div class="form-text">
+                            Ingresa el RUN sin puntos ni guion.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
                         <label for="nombre" class="form-label">Nombre completo</label>
                         <input type="text" id="nombre" class="form-control" maxlength="100">
                     </div>
@@ -156,6 +165,31 @@
                         <select id="comuna" class="form-select" disabled>
                             <option value="">Selecciona una comuna</option>
                         </select>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="direccion" class="form-label">
+                            Dirección
+                        </label>
+
+                        <input type="text"
+                            id="direccion"
+                            class="form-control"
+                            maxlength="300"
+                            placeholder="Ej: Av. Siempre Viva 123">
+                    </div>
+
+
+                    <div class="col-md-4">
+                        <label for="rol" class="form-label">
+                            Tipo de usuario
+                        </label>
+
+                        <input type="text"
+                            id="rol"
+                            class="form-control"
+                            value="Cliente"
+                            readonly>
                     </div>
 
                 </div>
