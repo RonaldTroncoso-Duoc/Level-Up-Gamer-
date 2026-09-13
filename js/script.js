@@ -151,7 +151,7 @@ function validarLogin() {
     mostrarExito("✅ Inicio de sesión correcto. Bienvenido, Administrador.");
     actualizarHeaderUsuario();
     setTimeout(() => {
-      window.location.href = "index.html";
+      window.location.href = "admin.html";
     }, 900);
     return false;
   }
@@ -409,6 +409,55 @@ function cerrarSesion() {
   localStorage.removeItem("usuarioActivo");
   actualizarHeaderUsuario();
   window.location.href = "index.html";
+}
+
+function cerrarSesionAdmin() {
+  localStorage.removeItem("usuarioActivo");
+  window.location.href = "login.html";
+}
+
+function cargarPanelAdministrador() {
+  const adminBody = document.querySelector(".admin-body");
+
+  if (!adminBody) {
+    return;
+  }
+
+  const usuario = obtenerUsuarioActivo() || {
+    nombre: "Administrador",
+    email: "admin@gmail.com",
+    rol: "admin",
+  };
+
+  const nombreCorto = usuario.nombre.split(" ")[0] || "Administrador";
+  const rolUsuario = usuario.rol === "admin" ? "Administrador" : "Usuario";
+  const usuariosRegistrados = obtenerUsuariosRegistrados();
+
+  const saludo = document.getElementById("admin-greeting-name");
+  const perfilNombre = document.getElementById("admin-profile-name");
+  const perfilRol = document.getElementById("admin-profile-role");
+  const avatar = document.getElementById("admin-avatar");
+  const totalUsuarios = document.getElementById("admin-total-users");
+
+  if (saludo) {
+    saludo.textContent = nombreCorto;
+  }
+
+  if (perfilNombre) {
+    perfilNombre.textContent = usuario.nombre;
+  }
+
+  if (perfilRol) {
+    perfilRol.textContent = `${rolUsuario} conectado`;
+  }
+
+  if (avatar) {
+    avatar.textContent = obtenerIniciales(usuario.nombre);
+  }
+
+  if (totalUsuarios) {
+    totalUsuarios.textContent = usuariosRegistrados.length;
+  }
 }
 
 const productos = [
@@ -1314,3 +1363,4 @@ mostrarCarrito();
 actualizarContadorCarrito();
 actualizarResumenCompra();
 cargarRegionesYComunas();
+cargarPanelAdministrador();
