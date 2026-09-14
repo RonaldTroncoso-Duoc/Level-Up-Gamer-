@@ -412,6 +412,13 @@ function validarLogin() {
     descuentoDuoc: usuarioPorCorreo.descuentoDuoc,
   });
 
+  if (usuarioPorCorreo.descuentoDuoc) {
+
+    localStorage.removeItem(
+      "descuentoAplicado"
+    );
+  }
+
   mostrarExito(
     `✅ Inicio de sesión correcto. Bienvenido, ${usuarioPorCorreo.nombre}.`,
   );
@@ -3658,14 +3665,51 @@ function calcularTotalCarrito() {
   return carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
 }
 
+function usuarioTieneDescuentoDuoc() {
+
+  const usuario = obtenerUsuarioActivo();
+
+  if (!usuario) {
+    return false;
+  }
+
+  const correo =
+    (usuario.email || "").toLowerCase();
+
+  const esCliente =
+    (usuario.rol || "cliente") === "cliente";
+
+  const correoDuoc =
+    correo.endsWith("@duoc.cl") ||
+    correo.endsWith("@profesor.duoc.cl");
+
+  return esCliente && correoDuoc;
+}
+
 function calcularTotalConDescuento() {
+
   const total = calcularTotalCarrito();
 
+
+  // BENEFICIO DUOC AUTOMÁTICO
+  if (usuarioTieneDescuentoDuoc()) {
+
+    return Math.round(
+      total * 0.80
+    );
+  }
+
+
+  // CUPÓN MANUAL
   if (!descuentoAplicado) {
+
     return total;
   }
 
-  return Math.round(total * (1 - descuentoAplicado.porcentaje));
+
+  return Math.round(
+    total * (1 - descuentoAplicado.porcentaje)
+  );
 }
 
 function actualizarContadorCarrito() {
@@ -3682,29 +3726,129 @@ function actualizarContadorCarrito() {
 }
 
 function actualizarResumenCompra() {
-  const total = calcularTotalCarrito();
-  const totalFinal = calcularTotalConDescuento();
+
+  const total =
+    calcularTotalCarrito();
+
+  const totalFinal =
+    calcularTotalConDescuento();
+
+  const tieneDescuentoDuoc =
+    usuarioTieneDescuentoDuoc();
+
 
   if (cartTotal) {
-    cartTotal.textContent = `$${total.toLocaleString("es-CL")}`;
+
+    cartTotal.textContent =
+      `$${total.toLocaleString("es-CL")}`;
   }
+
 
   if (cartTotalFinal) {
-    cartTotalFinal.textContent = `$${totalFinal.toLocaleString("es-CL")}`;
+
+    cartTotalFinal.textContent =
+      `$${totalFinal.toLocaleString("es-CL")}`;
   }
 
-  if (descuentoAplicado && aplicarDescuentoBtn) {
-    aplicarDescuentoBtn.disabled = true;
+
+  // =========================================
+  // BENEFICIO DUOC AUTOMÁTICO
+  // =========================================
+
+  if (tieneDescuentoDuoc) {
+
+    if (aplicarDescuentoBtn) {
+      aplicarDescuentoBtn.disabled = true;
+    }
+
+
+    if (codigoDescuento) {
+
+      codigoDescuento.value =
+        "BENEFICIO DUOC";
+
+      codigoDescuento.disabled = true;
+    }
+
+
+    if (mensajeDescuento) {
+
+      mensajeDescuento.textContent =
+        "Beneficio Duoc aplicado automáticamente: 20% de descuento.";
+
+      mensajeDescuento.className =
+        "form-text text-success";
+    }
+
+
+    return;
   }
 
-  if (descuentoAplicado && codigoDescuento) {
-    codigoDescuento.value = descuentoAplicado.codigo;
-    codigoDescuento.disabled = true;
+
+  // =========================================
+  // CUPÓN MANUAL
+  // =========================================
+
+  if (descuentoAplicado) {
+
+    if (aplicarDescuentoBtn) {
+      aplicarDescuentoBtn.disabled = true;
+    }
+
+
+    if (codigoDescuento) {
+
+      codigoDescuento.value =
+        descuentoAplicado.codigo;
+
+      codigoDescuento.disabled = true;
+    }
+
+
+    if (mensajeDescuento) {
+
+      mensajeDescuento.textContent =
+        `Cupón ${descuentoAplicado.codigo} aplicado: ${descuentoAplicado.etiqueta}.`;
+
+      mensajeDescuento.className =
+        "form-text text-success";
+    }
+
+
+    return;
   }
 
-  if (descuentoAplicado && mensajeDescuento) {
-    mensajeDescuento.textContent = `Cupón ${descuentoAplicado.codigo} aplicado: ${descuentoAplicado.etiqueta}.`;
-    mensajeDescuento.className = "form-text text-success";
+
+  // =========================================
+  // SIN DESCUENTO
+  // =========================================
+
+  if (aplicarDescuentoBtn) {
+    aplicarDescuentoBtn.disabled = false;
+  }
+
+
+  if (codigoDescuento) {
+
+    codigoDescuento.disabled = false;
+
+    if (
+      codigoDescuento.value ===
+      "BENEFICIO DUOC"
+    ) {
+
+      codigoDescuento.value = "";
+    }
+  }
+
+
+  if (mensajeDescuento) {
+
+    mensajeDescuento.textContent =
+      "Códigos disponibles: LEVELUP10 o GAMER5.";
+
+    mensajeDescuento.className =
+      "form-text";
   }
 }
 
@@ -3938,7 +4082,7 @@ function reiniciarDescuento() {
 
   if (mensajeDescuento) {
     mensajeDescuento.textContent =
-      "Códigos disponibles: LEVELUP10, DUOC20 o GAMER5.";
+      "Códigos disponibles: LEVELUP10 o GAMER5.";
     mensajeDescuento.className = "form-text";
   }
 }
@@ -3967,55 +4111,105 @@ function descontarStockCarrito() {
 }
 
 function aplicarDescuento() {
+
   if (!codigoDescuento || !mensajeDescuento || !aplicarDescuentoBtn) {
     return;
   }
 
+
+  // BENEFICIO DUOC AUTOMÁTICO
+  if (usuarioTieneDescuentoDuoc()) {
+
+    mensajeDescuento.textContent =
+      "Ya tienes aplicado automáticamente el beneficio Duoc del 20%.";
+
+    mensajeDescuento.className =
+      "form-text text-success";
+
+    aplicarDescuentoBtn.disabled = true;
+    codigoDescuento.disabled = true;
+
+    return;
+  }
+
+
+  // YA EXISTE UN CUPÓN MANUAL
   if (descuentoAplicado) {
+
     mensajeDescuento.textContent =
       "Ya aplicaste un cupón de descuento en esta compra.";
-    mensajeDescuento.className = "form-text text-warning";
+
+    mensajeDescuento.className =
+      "form-text text-warning";
+
     aplicarDescuentoBtn.disabled = true;
+
     return;
   }
 
+
+  // CARRITO VACÍO
   if (carrito.length === 0) {
+
     mensajeDescuento.textContent =
       "Agrega productos al carrito antes de aplicar un cupón.";
-    mensajeDescuento.className = "form-text text-danger";
+
+    mensajeDescuento.className =
+      "form-text text-danger";
+
     return;
   }
 
-  const codigo = codigoDescuento.value.trim().toUpperCase();
+
+  const codigo =
+    codigoDescuento.value.trim().toUpperCase();
+
+
+  // CUPONES MANUALES
   const cupones = {
-    LEVELUP10: {
-      porcentaje: 0.1,
-      etiqueta: "10% de descuento",
-    },
-    DUOC20: {
-      porcentaje: 0.2,
-      etiqueta: "20% de descuento",
-    },
-    GAMER5: {
-      porcentaje: 0.05,
-      etiqueta: "5% de descuento",
-    },
-  };
 
+  LEVELUP10: {
+    porcentaje: 0.1,
+    etiqueta: "10% de descuento",
+  },
+
+  GAMER5: {
+    porcentaje: 0.05,
+    etiqueta: "5% de descuento",
+  },
+
+};
+
+
+  // VALIDAR CÓDIGO
   if (!cupones[codigo]) {
-    mensajeDescuento.textContent = "El código ingresado no es válido.";
-    mensajeDescuento.className = "form-text text-danger";
+
+    mensajeDescuento.textContent =
+      "El código ingresado no es válido.";
+
+    mensajeDescuento.className =
+      "form-text text-danger";
+
     return;
   }
 
+
+  // GUARDAR CUPÓN
   descuentoAplicado = {
     codigo,
     ...cupones[codigo],
   };
 
-  localStorage.setItem("descuentoAplicado", JSON.stringify(descuentoAplicado));
+
+  localStorage.setItem(
+    "descuentoAplicado",
+    JSON.stringify(descuentoAplicado)
+  );
+
+
   aplicarDescuentoBtn.disabled = true;
   codigoDescuento.disabled = true;
+
 
   actualizarResumenCompra();
 }
