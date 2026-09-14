@@ -382,7 +382,20 @@ function validarLogin() {
     mostrarExito("✅ Inicio de sesión correcto. Bienvenido, Administrador.");
     actualizarHeaderUsuario();
     setTimeout(() => {
-      window.location.href = "admin.html";
+
+      if (usuarioPorCorreo.rol === "admin") {
+
+        window.location.href = "admin.html";
+
+      } else if (usuarioPorCorreo.rol === "vendedor") {
+
+        window.location.href = "vendedor.html";
+
+      } else {
+
+        window.location.href = "index.html";
+      }
+
     }, 900);
     return false;
   }
@@ -401,6 +414,7 @@ function validarLogin() {
   }
 
   guardarUsuarioActivo({
+    id: usuarioPorCorreo.id,
     run: usuarioPorCorreo.run,
     nombre: usuarioPorCorreo.nombre,
     email: usuarioPorCorreo.email,
@@ -425,7 +439,20 @@ function validarLogin() {
   actualizarHeaderUsuario();
 
   setTimeout(() => {
-    window.location.href = "index.html";
+
+    if (usuarioPorCorreo.rol === "admin") {
+
+      window.location.href = "admin.html";
+
+    } else if (usuarioPorCorreo.rol === "vendedor") {
+
+      window.location.href = "vendedor.html";
+
+    } else {
+
+      window.location.href = "index.html";
+    }
+
   }, 900);
 
   return false;
@@ -1171,6 +1198,38 @@ function guardarCambiosPerfil(event) {
   document.getElementById(
     "perfil-confirm-password"
   ).value = "";
+}
+
+function volverDesdePerfil() {
+
+  const usuario =
+    obtenerUsuarioActivo();
+
+
+  if (!usuario) {
+
+    window.location.href =
+      "login.html";
+
+    return;
+  }
+
+
+  if (usuario.rol === "admin") {
+
+    window.location.href =
+      "admin.html";
+
+  } else if (usuario.rol === "vendedor") {
+
+    window.location.href =
+      "vendedor.html";
+
+  } else {
+
+    window.location.href =
+      "index.html";
+  }
 }
 
 function cerrarSesion() {
@@ -3054,6 +3113,853 @@ function renderizarFilaDetallePedidoAdmin(pedido) {
   `;
 }
 
+//PANEL VENDEDOR
+function cargarPanelVendedor() {
+
+  const panelVendedor =
+    document.getElementById("vendedor-view-productos");
+
+  // Si no estamos en vendedor.html, no hacer nada
+  if (!panelVendedor) {
+    return;
+  }
+
+
+  const usuario =
+    obtenerUsuarioActivo();
+
+
+  if (!usuario) {
+
+    window.location.href = "login.html";
+
+    return;
+  }
+
+
+  // Solo los vendedores utilizan este panel
+  if (usuario.rol !== "vendedor") {
+
+    window.location.href = "index.html";
+
+    return;
+  }
+
+
+  const saludo =
+    document.getElementById(
+      "vendedor-greeting-name"
+    );
+
+  const nombrePerfil =
+    document.getElementById(
+      "vendedor-profile-name"
+    );
+
+  const rolPerfil =
+    document.getElementById(
+      "vendedor-profile-role"
+    );
+
+  const avatar =
+    document.getElementById(
+      "vendedor-avatar"
+    );
+
+
+  if (saludo) {
+
+    saludo.textContent =
+      usuario.nombre.split(" ")[0];
+  }
+
+
+  if (nombrePerfil) {
+
+    nombrePerfil.textContent =
+      usuario.nombre;
+  }
+
+
+  if (rolPerfil) {
+
+    rolPerfil.textContent =
+      "Vendedor conectado";
+  }
+
+
+  if (avatar) {
+
+    avatar.textContent =
+      obtenerIniciales(usuario.nombre);
+  }
+
+  inicializarNavegacionVendedor();
+  renderizarProductosVendedor();
+  renderizarResumenOrdenesVendedor();
+  renderizarOrdenesVendedor();
+}
+
+let paginaOrdenesVendedor = 1;
+let ordenSeleccionadaVendedor = null;
+
+const ordenesPorPaginaVendedor = 10;
+
+function obtenerOrdenesVendedorActivo() {
+
+  const usuario =
+    obtenerUsuarioActivo();
+
+  if (!usuario || usuario.rol !== "vendedor") {
+    return [];
+  }
+
+  return pedidosAdmin.filter(
+    (pedido) =>
+      pedido.trabajador.trim().toLowerCase() ===
+      usuario.nombre.trim().toLowerCase()
+  );
+}
+
+function renderizarResumenOrdenesVendedor() {
+
+  const ordenes =
+    obtenerOrdenesVendedorActivo();
+
+  const completadas =
+    document.getElementById(
+      "vendedor-orders-completed"
+    );
+
+  const enCurso =
+    document.getElementById(
+      "vendedor-orders-progress"
+    );
+
+  const canceladas =
+    document.getElementById(
+      "vendedor-orders-cancelled"
+    );
+
+
+  if (completadas) {
+
+    completadas.textContent =
+      ordenes.filter(
+        (pedido) =>
+          pedido.estado === "Completado"
+      ).length;
+  }
+
+
+  if (enCurso) {
+
+    enCurso.textContent =
+      ordenes.filter(
+        (pedido) =>
+          pedido.estado === "En curso"
+      ).length;
+  }
+
+
+  if (canceladas) {
+
+    canceladas.textContent =
+      ordenes.filter(
+        (pedido) =>
+          pedido.estado === "Cancelado"
+      ).length;
+  }
+}
+
+function renderizarOrdenesVendedor() {
+
+  const tbody =
+    document.getElementById(
+      "vendedor-orders-body"
+    );
+
+  const rango =
+    document.getElementById(
+      "vendedor-orders-range"
+    );
+
+  if (!tbody) {
+    return;
+  }
+
+
+  const ordenes =
+    obtenerOrdenesVendedorActivo();
+
+
+  if (ordenes.length === 0) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4"
+            class="text-center">
+          No tienes órdenes asociadas.
+        </td>
+      </tr>
+    `;
+
+    if (rango) {
+      rango.textContent =
+        "0 órdenes asociadas";
+    }
+
+    return;
+  }
+
+
+  const inicio =
+    (paginaOrdenesVendedor - 1) *
+    ordenesPorPaginaVendedor;
+
+  const fin =
+    inicio + ordenesPorPaginaVendedor;
+
+  const ordenesPagina =
+    ordenes.slice(inicio, fin);
+
+
+  tbody.innerHTML =
+    ordenesPagina
+      .map((pedido) => {
+
+        const total =
+          obtenerTotalPedidoAdmin(pedido);
+
+        const estadoClase =
+          obtenerClaseEstadoPedidoAdmin(
+            pedido.estado
+          );
+
+        const seleccionada =
+          ordenSeleccionadaVendedor ===
+          pedido.id
+            ? "selected"
+            : "";
+
+        const detalle =
+          ordenSeleccionadaVendedor ===
+          pedido.id
+            ? renderizarDetalleOrdenVendedor(
+                pedido
+              )
+            : "";
+
+
+        return `
+
+          <tr
+            class="${seleccionada}"
+            onclick="seleccionarOrdenVendedor('${pedido.id}')">
+
+            <td>
+              ${pedido.fecha}
+            </td>
+
+            <td>
+              <strong>
+                ${pedido.id}
+              </strong>
+            </td>
+
+            <td>
+
+              <span
+                class="admin-status-badge ${estadoClase}">
+
+                ${pedido.estado}
+
+              </span>
+
+            </td>
+
+            <td>
+              ${formatearPrecio(total)}
+            </td>
+
+          </tr>
+
+          ${detalle}
+
+        `;
+
+      })
+      .join("");
+
+
+  if (rango) {
+
+    rango.textContent =
+      `Mostrando ${inicio + 1}-${Math.min(
+        fin,
+        ordenes.length
+      )} de ${ordenes.length} órdenes`;
+  }
+
+
+  renderizarPaginacionOrdenesVendedor();
+}
+
+function renderizarDetalleOrdenVendedor(
+  pedido
+) {
+
+  const total =
+    obtenerTotalPedidoAdmin(pedido);
+
+  const estadoClase =
+    obtenerClaseEstadoPedidoAdmin(
+      pedido.estado
+    );
+
+
+  return `
+
+    <tr class="admin-order-detail-row">
+
+      <td colspan="4">
+
+        <div class="admin-order-detail-inline">
+
+          <div class="admin-order-detail-header">
+
+            <div>
+
+              <p>
+                Detalle de venta
+              </p>
+
+              <h3>
+                ${pedido.id}
+              </h3>
+
+            </div>
+
+
+            <span
+              class="admin-status-badge ${estadoClase}">
+
+              ${pedido.estado}
+
+            </span>
+
+          </div>
+
+
+          <div class="admin-order-meta">
+
+            <span>
+              <strong>Fecha:</strong>
+              ${pedido.fecha}
+            </span>
+
+            <span>
+              <strong>Total:</strong>
+              ${formatearPrecio(total)}
+            </span>
+
+          </div>
+
+
+          <div class="admin-table-responsive">
+
+            <table
+              class="admin-order-products-table">
+
+              <thead>
+
+                <tr>
+
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio unitario</th>
+                  <th>Subtotal</th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                ${pedido.productos
+                  .map(
+                    (producto) => `
+
+                      <tr>
+
+                        <td>
+                          ${producto.nombre}
+                        </td>
+
+                        <td>
+                          ${producto.cantidad}
+                        </td>
+
+                        <td>
+                          ${formatearPrecio(
+                            producto.precio
+                          )}
+                        </td>
+
+                        <td>
+                          ${formatearPrecio(
+                            producto.precio *
+                            producto.cantidad
+                          )}
+                        </td>
+
+                      </tr>
+
+                    `
+                  )
+                  .join("")}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </td>
+
+    </tr>
+  `;
+}
+
+function seleccionarOrdenVendedor(
+  idPedido
+) {
+
+  ordenSeleccionadaVendedor =
+    ordenSeleccionadaVendedor === idPedido
+      ? null
+      : idPedido;
+
+  renderizarOrdenesVendedor();
+}
+
+function renderizarPaginacionOrdenesVendedor() {
+
+  const contenedor =
+    document.getElementById(
+      "vendedor-orders-pagination"
+    );
+
+  if (!contenedor) {
+    return;
+  }
+
+
+  const ordenes =
+    obtenerOrdenesVendedorActivo();
+
+  const totalPaginas =
+    Math.ceil(
+      ordenes.length /
+      ordenesPorPaginaVendedor
+    );
+
+
+  if (totalPaginas <= 1) {
+
+    contenedor.innerHTML = "";
+
+    return;
+  }
+
+
+  const botones = [];
+
+
+  botones.push(`
+    <button
+      type="button"
+      onclick="cambiarPaginaOrdenesVendedor(${paginaOrdenesVendedor - 1})"
+      ${paginaOrdenesVendedor === 1
+        ? "disabled"
+        : ""}>
+
+      &lt;
+
+    </button>
+  `);
+
+
+  for (
+    let pagina = 1;
+    pagina <= totalPaginas;
+    pagina++
+  ) {
+
+    botones.push(`
+
+      <button
+        type="button"
+        class="${
+          paginaOrdenesVendedor === pagina
+            ? "active"
+            : ""
+        }"
+        onclick="cambiarPaginaOrdenesVendedor(${pagina})">
+
+        ${pagina}
+
+      </button>
+
+    `);
+  }
+
+
+  botones.push(`
+    <button
+      type="button"
+      onclick="cambiarPaginaOrdenesVendedor(${paginaOrdenesVendedor + 1})"
+      ${
+        paginaOrdenesVendedor ===
+        totalPaginas
+          ? "disabled"
+          : ""
+      }>
+
+      &gt;
+
+    </button>
+  `);
+
+
+  contenedor.innerHTML =
+    botones.join("");
+}
+
+function cambiarPaginaOrdenesVendedor(
+  pagina
+) {
+
+  const ordenes =
+    obtenerOrdenesVendedorActivo();
+
+  const totalPaginas =
+    Math.ceil(
+      ordenes.length /
+      ordenesPorPaginaVendedor
+    );
+
+
+  if (
+    pagina < 1 ||
+    pagina > totalPaginas
+  ) {
+
+    return;
+  }
+
+
+  paginaOrdenesVendedor =
+    pagina;
+
+  ordenSeleccionadaVendedor =
+    null;
+
+  renderizarOrdenesVendedor();
+}
+
+function inicializarNavegacionVendedor() {
+
+  const links =
+    document.querySelectorAll("[data-vendedor-view]");
+
+  if (links.length === 0) {
+    return;
+  }
+
+  links.forEach((link) => {
+
+    link.addEventListener("click", function (event) {
+
+      event.preventDefault();
+
+      cambiarVistaVendedor(
+        link.dataset.vendedorView
+      );
+
+    });
+
+  });
+}
+
+
+function cambiarVistaVendedor(vista) {
+
+  const secciones =
+    document.querySelectorAll(
+      ".vendedor-view-section"
+    );
+
+  const links =
+    document.querySelectorAll(
+      "[data-vendedor-view]"
+    );
+
+
+  secciones.forEach((seccion) => {
+
+    seccion.classList.toggle(
+      "active",
+      seccion.id ===
+        `vendedor-view-${vista}`
+    );
+
+  });
+
+
+  links.forEach((link) => {
+
+    const activo =
+      link.dataset.vendedorView === vista;
+
+    link.classList.toggle(
+      "active",
+      activo
+    );
+
+
+    if (activo) {
+
+      link.setAttribute(
+        "aria-current",
+        "page"
+      );
+
+    } else {
+
+      link.removeAttribute(
+        "aria-current"
+      );
+    }
+
+  });
+}
+
+function renderizarProductosVendedor() {
+
+  const tbody =
+    document.getElementById(
+      "vendedor-products-body"
+    );
+
+  const contador =
+    document.getElementById(
+      "vendedor-products-count"
+    );
+
+  if (!tbody) {
+    return;
+  }
+
+
+  const productos =
+    obtenerProductosTienda();
+
+
+  if (contador) {
+
+    contador.textContent =
+      productos.length +
+      (productos.length === 1
+        ? " producto disponible"
+        : " productos disponibles");
+  }
+
+
+  if (productos.length === 0) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7"
+            class="text-center">
+          No hay productos disponibles.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  tbody.innerHTML =
+    productos
+      .map((producto) => {
+
+        return `
+          <tr>
+
+            <td>
+              <img
+                src="${producto.imagen}"
+                alt="${producto.nombre}"
+                class="admin-inventory-img">
+            </td>
+
+            <td>
+              <strong>
+                ${producto.id}
+              </strong>
+            </td>
+
+            <td>
+              ${producto.nombre}
+            </td>
+
+            <td>
+              ${producto.categoria}
+            </td>
+
+            <td>
+              ${formatearPrecio(producto.precio)}
+            </td>
+
+            <td>
+              ${producto.stock}
+            </td>
+
+            <td>
+
+              <div class="admin-row-actions">
+
+                <button
+                  type="button"
+                  onclick="verDetalleProductoVendedor('${producto.id}')">
+
+                  Ver detalle
+
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+        `;
+
+      })
+      .join("");
+}
+
+function verDetalleProductoVendedor(idProducto) {
+
+  const producto =
+    obtenerProductoTienda(idProducto);
+
+  const contenedor =
+    document.getElementById(
+      "vendedor-product-detail"
+    );
+
+  if (!producto || !contenedor) {
+    return;
+  }
+
+
+  contenedor.style.display = "block";
+
+
+  contenedor.innerHTML = `
+
+    <div class="admin-table-header">
+
+      <div>
+
+        <h3>
+          ${producto.nombre}
+        </h3>
+
+        <p>
+          ${producto.categoria} ·
+          ${producto.id}
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="admin-secondary-btn"
+        onclick="cerrarDetalleProductoVendedor()">
+
+        Cerrar
+
+      </button>
+
+    </div>
+
+
+    <div class="p-4">
+
+      <div class="row g-4 align-items-center">
+
+        <div class="col-md-4">
+
+          <img
+            src="${producto.imagen}"
+            alt="${producto.nombre}"
+            class="img-fluid rounded">
+
+        </div>
+
+
+        <div class="col-md-8">
+
+          <p>
+            <strong>Precio:</strong>
+            ${formatearPrecio(producto.precio)}
+          </p>
+
+          <p>
+            <strong>Stock disponible:</strong>
+            ${producto.stock}
+          </p>
+
+          <p>
+            <strong>Descripción:</strong>
+            ${producto.descripcion || "Sin descripción"}
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+
+  contenedor.scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+
+function cerrarDetalleProductoVendedor() {
+
+  const contenedor =
+    document.getElementById(
+      "vendedor-product-detail"
+    );
+
+  if (!contenedor) {
+    return;
+  }
+
+  contenedor.style.display = "none";
+  contenedor.innerHTML = "";
+}
+
 const productos = [
   {
     id: "JM001",
@@ -4774,3 +5680,4 @@ actualizarResumenCompra();
 cargarRegionesYComunas();
 cargarPanelAdministrador();
 cargarDatosPerfil();
+cargarPanelVendedor();
