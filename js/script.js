@@ -88,7 +88,7 @@ function obtenerUsuariosIniciales() {
       email: "camila@gmail.com",
       password: "camila123",
       telefono: "+56911111111",
-      region: "Región Metropolitana de Santiago",
+      region: "Región Metropolitana",
       comuna: "Santiago",
       direccion: "Av. Providencia 123",
       rol: "cliente",
@@ -103,7 +103,7 @@ function obtenerUsuariosIniciales() {
       email: "tomas@duoc.cl",
       password: "tomas123",
       telefono: "+56922222222",
-      region: "Región Metropolitana de Santiago",
+      region: "Región Metropolitana",
       comuna: "Maipú",
       direccion: "Los Pajaritos 456",
       rol: "cliente",
@@ -118,7 +118,7 @@ function obtenerUsuariosIniciales() {
       email: "fernanda@gmail.com",
       password: "fernanda123",
       telefono: "+56933333333",
-      region: "Región de Valparaíso",
+      region: "Valparaíso",
       comuna: "Viña del Mar",
       direccion: "Álvarez 789",
       rol: "cliente",
@@ -134,7 +134,7 @@ function obtenerUsuariosIniciales() {
       email: "daniel.admin@gmail.com",
       password: "admin123",
       telefono: "+56944444444",
-      region: "Región Metropolitana de Santiago",
+      region: "Región Metropolitana",
       comuna: "Santiago",
       direccion: "Av. Apoquindo 1200",
       rol: "admin",
@@ -150,7 +150,7 @@ function obtenerUsuariosIniciales() {
       email: "camila.torres@gmail.com",
       password: "venta101",
       telefono: "+56950000001",
-      region: "Región Metropolitana de Santiago",
+      region: "Región Metropolitana",
       comuna: "Santiago",
       direccion: "Av. Portugal 320",
       rol: "vendedor",
@@ -165,7 +165,7 @@ function obtenerUsuariosIniciales() {
       email: "matias.rojas@gmail.com",
       password: "venta102",
       telefono: "+56950000002",
-      region: "Región Metropolitana de Santiago",
+      region: "Región Metropolitana",
       comuna: "Maipú",
       direccion: "Av. Pajaritos 1520",
       rol: "vendedor",
@@ -180,7 +180,7 @@ function obtenerUsuariosIniciales() {
       email: "fernanda.munoz@gmail.com",
       password: "venta103",
       telefono: "+56950000003",
-      region: "Región Metropolitana de Santiago",
+      region: "Región Metropolitana",
       comuna: "Providencia",
       direccion: "Av. Manuel Montt 640",
       rol: "vendedor",
@@ -195,7 +195,7 @@ function obtenerUsuariosIniciales() {
       email: "diego.salazar@duoc.cl",
       password: "venta104",
       telefono: "+56950000004",
-      region: "Región Metropolitana de Santiago",
+      region: "Región Metropolitana",
       comuna: "Santiago",
       direccion: "Santa Isabel 870",
       rol: "vendedor",
@@ -210,7 +210,7 @@ function obtenerUsuariosIniciales() {
       email: "valentina.soto@gmail.com",
       password: "venta105",
       telefono: "+56950000005",
-      region: "Región de Valparaíso",
+      region: "Valparaíso",
       comuna: "Viña del Mar",
       direccion: "5 Norte 425",
       rol: "vendedor",
@@ -225,7 +225,7 @@ function obtenerUsuariosIniciales() {
       email: "nicolas.herrera@gmail.com",
       password: "venta106",
       telefono: "+56950000006",
-      region: "Región de Valparaíso",
+      region: "Valparaíso",
       comuna: "Valparaíso",
       direccion: "Av. Brasil 1180",
       rol: "vendedor",
@@ -765,20 +765,412 @@ function actualizarHeaderUsuario() {
 }
 
 function editarPerfil() {
+
   const usuario = obtenerUsuarioActivo();
 
   if (!usuario) {
+
     window.location.href = "login.html";
+
     return;
   }
 
-  alert(
-    `Perfil de ${usuario.nombre}\n\n` +
-      `Correo: ${usuario.email}\n` +
-      `Región: ${usuario.region || "No registrada"}\n` +
-      `Comuna: ${usuario.comuna || "No registrada"}\n\n` +
-      "La edición completa del perfil quedará preparada para una próxima vista.",
+  window.location.href = "perfil.html";
+}
+
+function cargarComunasPerfil(
+  region,
+  comunaSeleccionada = ""
+) {
+
+  const comunaSelect =
+    document.getElementById("perfil-comuna");
+
+  if (!comunaSelect) {
+    return;
+  }
+
+  const comunas =
+    regionesComunas[region] || [];
+
+  comunaSelect.innerHTML =
+    '<option value="">Selecciona una comuna</option>';
+
+  comunaSelect.disabled =
+    comunas.length === 0;
+
+  comunas.forEach((comuna) => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = comuna;
+    option.textContent = comuna;
+
+    if (comuna === comunaSeleccionada) {
+      option.selected = true;
+    }
+
+    comunaSelect.appendChild(option);
+  });
+}
+
+
+function cargarDatosPerfil() {
+
+  const formulario =
+    document.getElementById("formularioPerfil");
+
+  if (!formulario) {
+    return;
+  }
+
+  const usuario =
+    obtenerUsuarioActivo();
+
+  if (!usuario) {
+
+    window.location.href = "login.html";
+
+    return;
+  }
+
+  const regionSelect =
+    document.getElementById("perfil-region");
+
+
+  Object.keys(regionesComunas).forEach((region) => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = region;
+    option.textContent = region;
+
+    regionSelect.appendChild(option);
+  });
+
+
+  document.getElementById("perfil-run").value =
+    usuario.run || "";
+
+  document.getElementById("perfil-nombre").value =
+    usuario.nombre || "";
+
+  document.getElementById("perfil-email").value =
+    usuario.email || "";
+
+  document.getElementById("perfil-telefono").value =
+    usuario.telefono || "";
+
+  document.getElementById("perfil-direccion").value =
+    usuario.direccion || "";
+
+
+  regionSelect.value =
+    usuario.region || "";
+
+
+  cargarComunasPerfil(
+    usuario.region,
+    usuario.comuna
   );
+
+
+  regionSelect.addEventListener(
+    "change",
+    function () {
+
+      cargarComunasPerfil(
+        regionSelect.value
+      );
+    }
+  );
+}
+
+//GUARDAR CAMBIOS DATOS PERFIL
+function guardarCambiosPerfil(event) {
+
+  event.preventDefault();
+
+  const usuarioActivo =
+    obtenerUsuarioActivo();
+
+  if (!usuarioActivo) {
+
+    window.location.href = "login.html";
+
+    return;
+  }
+
+
+  const nombre =
+    document.getElementById("perfil-nombre")
+      ?.value.trim() || "";
+
+  const email =
+    document.getElementById("perfil-email")
+      ?.value.trim().toLowerCase() || "";
+
+  const telefono =
+    document.getElementById("perfil-telefono")
+      ?.value.trim() || "";
+
+  const region =
+    document.getElementById("perfil-region")
+      ?.value || "";
+
+  const comuna =
+    document.getElementById("perfil-comuna")
+      ?.value || "";
+
+  const direccion =
+    document.getElementById("perfil-direccion")
+      ?.value.trim() || "";
+
+  const password =
+    document.getElementById("perfil-password")
+      ?.value.trim() || "";
+
+  const confirmPassword =
+    document.getElementById("perfil-confirm-password")
+      ?.value.trim() || "";
+
+  const mensajes =
+    document.getElementById("perfil-mensajes");
+
+  const errores = [];
+
+
+  // NOMBRE
+  if (nombre === "") {
+
+    errores.push(
+      "El nombre es obligatorio."
+    );
+
+  } else if (nombre.length > 100) {
+
+    errores.push(
+      "El nombre no puede superar los 100 caracteres."
+    );
+  }
+
+
+  // CORREO
+  const emailRegex =
+    /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/;
+
+  if (email === "") {
+
+    errores.push(
+      "El correo es obligatorio."
+    );
+
+  } else if (email.length > 100) {
+
+    errores.push(
+      "El correo no puede superar los 100 caracteres."
+    );
+
+  } else if (!emailRegex.test(email)) {
+
+    errores.push(
+      "El correo debe ser @duoc.cl, @profesor.duoc.cl o @gmail.com."
+    );
+  }
+
+
+  // REGIÓN
+  if (region === "") {
+
+    errores.push(
+      "Debes seleccionar una región."
+    );
+  }
+
+
+  // COMUNA
+  if (comuna === "") {
+
+    errores.push(
+      "Debes seleccionar una comuna."
+    );
+  }
+
+
+  // DIRECCIÓN
+  if (direccion === "") {
+
+    errores.push(
+      "La dirección es obligatoria."
+    );
+
+  } else if (direccion.length > 300) {
+
+    errores.push(
+      "La dirección no puede superar los 300 caracteres."
+    );
+  }
+
+
+  // CONTRASEÑA
+  if (password !== "" || confirmPassword !== "") {
+
+    if (password === "") {
+
+      errores.push(
+        "Ingresa la nueva contraseña."
+      );
+
+    } else if (confirmPassword === "") {
+
+      errores.push(
+        "Confirma la nueva contraseña."
+      );
+
+    } else if (password !== confirmPassword) {
+
+      errores.push(
+        "Las contraseñas no coinciden."
+      );
+    }
+  }
+
+
+  const usuarios =
+    obtenerUsuariosRegistrados();
+
+
+  // CORREO DUPLICADO
+  const correoDuplicado =
+    usuarios.some(
+      (usuario) =>
+        usuario.email === email &&
+        usuario.run !== usuarioActivo.run
+    );
+
+
+  if (correoDuplicado) {
+
+    errores.push(
+      "Ya existe otra cuenta registrada con ese correo."
+    );
+  }
+
+
+  // MOSTRAR ERRORES
+  if (errores.length > 0) {
+
+    mensajes.className =
+      "alert alert-danger mt-4";
+
+    mensajes.innerHTML =
+      errores
+        .map(
+          (error) =>
+            "<div>⚠️ " + error + "</div>"
+        )
+        .join("");
+
+    return;
+  }
+
+
+  // BENEFICIO DUOC
+  const descuentoDuoc =
+    email.endsWith("@duoc.cl") ||
+    email.endsWith("@profesor.duoc.cl");
+
+
+  // ACTUALIZAR USUARIO EN usuariosLevelUp
+  const usuariosActualizados =
+    usuarios.map((usuario) => {
+
+      if (
+        usuario.run !== usuarioActivo.run
+      ) {
+
+        return usuario;
+      }
+
+
+      return {
+
+        ...usuario,
+
+        nombre,
+        email,
+        telefono,
+        region,
+        comuna,
+        direccion,
+
+        password:
+          password || usuario.password,
+
+        descuentoDuoc
+      };
+
+    });
+
+
+  guardarUsuariosRegistrados(
+    usuariosActualizados
+  );
+
+
+  // ACTUALIZAR usuarioActivo
+  const usuarioActualizado = {
+
+    ...usuarioActivo,
+
+    nombre,
+    email,
+    telefono,
+    region,
+    comuna,
+    direccion,
+
+    descuentoDuoc
+  };
+
+
+  guardarUsuarioActivo(
+    usuarioActualizado
+  );
+
+
+  // Si ahora tiene beneficio Duoc,
+  // eliminar cualquier cupón manual anterior
+  if (descuentoDuoc) {
+
+    descuentoAplicado = null;
+
+    localStorage.removeItem(
+      "descuentoAplicado"
+    );
+  }
+
+
+  actualizarHeaderUsuario();
+
+
+  mensajes.className =
+    "alert alert-success mt-4";
+
+  mensajes.textContent =
+    "✅ Perfil actualizado correctamente.";
+
+
+  // Limpiar campos de contraseña
+  document.getElementById(
+    "perfil-password"
+  ).value = "";
+
+  document.getElementById(
+    "perfil-confirm-password"
+  ).value = "";
 }
 
 function cerrarSesion() {
@@ -4360,6 +4752,17 @@ function correoValidoContacto(correo) {
 
 }
 
+const formularioPerfil =
+  document.getElementById("formularioPerfil");
+
+if (formularioPerfil) {
+
+  formularioPerfil.addEventListener(
+    "submit",
+    guardarCambiosPerfil
+  );
+}
+
 inicializarUsuarios();
 actualizarHeaderUsuario();
 cargarFiltrosProductos();
@@ -4370,3 +4773,4 @@ actualizarContadorCarrito();
 actualizarResumenCompra();
 cargarRegionesYComunas();
 cargarPanelAdministrador();
+cargarDatosPerfil();
