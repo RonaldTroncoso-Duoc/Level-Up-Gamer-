@@ -98,10 +98,10 @@ function obtenerUsuariosIniciales() {
     {
       id: 1002,
       run: "193456782",
-      nombre: "Matías Rojas",
+      nombre: "Tomás Rojas",
       fechaNacimiento: "2000-08-22",
-      email: "matias@duoc.cl",
-      password: "matias123",
+      email: "tomas@duoc.cl",
+      password: "tomas123",
       telefono: "+56922222222",
       region: "Región Metropolitana de Santiago",
       comuna: "Maipú",
@@ -144,32 +144,92 @@ function obtenerUsuariosIniciales() {
     // VENDEDORES
     {
       id: 3001,
-      run: "18456789K",
-      nombre: "Valentina Pérez",
-      fechaNacimiento: "1995-09-12",
-      email: "valentina.vendedor@gmail.com",
-      password: "venta123",
-      telefono: "+56955555555",
+      run: "167894321",
+      nombre: "Camila Torres",
+      fechaNacimiento: "1996-03-14",
+      email: "camila.torres@gmail.com",
+      password: "venta101",
+      telefono: "+56950000001",
       region: "Región Metropolitana de Santiago",
-      comuna: "Providencia",
-      direccion: "Av. Nueva Providencia 850",
+      comuna: "Santiago",
+      direccion: "Av. Portugal 320",
       rol: "vendedor",
       descuentoDuoc: false
     },
 
     {
       id: 3002,
-      run: "215432106",
-      nombre: "Sebastián Herrera",
-      fechaNacimiento: "1999-02-27",
-      email: "sebastian.vendedor@duoc.cl",
-      password: "venta456",
-      telefono: "+56966666666",
-      region: "Región de Valparaíso",
-      comuna: "Valparaíso",
-      direccion: "Av. Brasil 560",
+      run: "178902342",
+      nombre: "Matías Rojas",
+      fechaNacimiento: "1995-07-21",
+      email: "matias.rojas@gmail.com",
+      password: "venta102",
+      telefono: "+56950000002",
+      region: "Región Metropolitana de Santiago",
+      comuna: "Maipú",
+      direccion: "Av. Pajaritos 1520",
+      rol: "vendedor",
+      descuentoDuoc: false
+    },
+
+    {
+      id: 3003,
+      run: "186543211",
+      nombre: "Fernanda Muñoz",
+      fechaNacimiento: "1994-10-09",
+      email: "fernanda.munoz@gmail.com",
+      password: "venta103",
+      telefono: "+56950000003",
+      region: "Región Metropolitana de Santiago",
+      comuna: "Providencia",
+      direccion: "Av. Manuel Montt 640",
+      rol: "vendedor",
+      descuentoDuoc: false
+    },
+
+    {
+      id: 3004,
+      run: "197654325",
+      nombre: "Diego Salazar",
+      fechaNacimiento: "1998-01-25",
+      email: "diego.salazar@duoc.cl",
+      password: "venta104",
+      telefono: "+56950000004",
+      region: "Región Metropolitana de Santiago",
+      comuna: "Santiago",
+      direccion: "Santa Isabel 870",
       rol: "vendedor",
       descuentoDuoc: true
+    },
+
+    {
+      id: 3005,
+      run: "208765434",
+      nombre: "Valentina Soto",
+      fechaNacimiento: "2000-05-17",
+      email: "valentina.soto@gmail.com",
+      password: "venta105",
+      telefono: "+56950000005",
+      region: "Región de Valparaíso",
+      comuna: "Viña del Mar",
+      direccion: "5 Norte 425",
+      rol: "vendedor",
+      descuentoDuoc: false
+    },
+
+    {
+      id: 3006,
+      run: "219876548",
+      nombre: "Nicolás Herrera",
+      fechaNacimiento: "2001-08-30",
+      email: "nicolas.herrera@gmail.com",
+      password: "venta106",
+      telefono: "+56950000006",
+      region: "Región de Valparaíso",
+      comuna: "Valparaíso",
+      direccion: "Av. Brasil 1180",
+      rol: "vendedor",
+      descuentoDuoc: false
     }
 
   ];
@@ -796,6 +856,77 @@ function cargarComunasUsuarioAdmin(
 
 }
 
+//REGIONES Y COMUNAS -ADMIN EMPLEADOS
+function cargarRegionesEmpleadosAdmin() {
+
+  const regionSelect =
+    document.getElementById("admin-employee-region");
+
+  if (!regionSelect) {
+    return;
+  }
+
+  regionSelect.innerHTML =
+    '<option value="">Selecciona una región</option>';
+
+  Object.keys(regionesComunas).forEach((region) => {
+
+    const option = document.createElement("option");
+
+    option.value = region;
+    option.textContent = region;
+
+    regionSelect.appendChild(option);
+
+  });
+
+
+  regionSelect.addEventListener("change", function () {
+
+    cargarComunasEmpleadoAdmin(regionSelect.value);
+
+  });
+
+}
+
+function cargarComunasEmpleadoAdmin(
+  region,
+  comunaSeleccionada = ""
+) {
+
+  const comunaSelect =
+    document.getElementById("admin-employee-comuna");
+
+  if (!comunaSelect) {
+    return;
+  }
+
+  const comunas = regionesComunas[region] || [];
+
+  comunaSelect.innerHTML =
+    '<option value="">Selecciona una comuna</option>';
+
+  comunaSelect.disabled = comunas.length === 0;
+
+
+  comunas.forEach((comuna) => {
+
+    const option = document.createElement("option");
+
+    option.value = comuna;
+    option.textContent = comuna;
+
+
+    if (comuna === comunaSeleccionada) {
+      option.selected = true;
+    }
+
+    comunaSelect.appendChild(option);
+
+  });
+
+}
+
 //MOSTRAR EMPLEADOS REGISTRADOS EN ADMIN
 function renderizarEmpleadosAdmin() {
 
@@ -805,86 +936,723 @@ function renderizarEmpleadosAdmin() {
   const contador =
     document.getElementById("admin-employees-count");
 
-
   if (!tbody) {
     return;
   }
 
+  const usuarios = obtenerUsuariosRegistrados();
 
-  const empleados = obtenerUsuariosRegistrados()
-    .filter(
-      (usuario) =>
-        usuario.rol === "vendedor" ||
-        usuario.rol === "admin"
-    );
-
-
-  if (empleados.length === 0) {
-
-    tbody.innerHTML = `
-
-      <tr>
-
-        <td colspan="5"
-            class="text-center">
-
-          No hay empleados registrados.
-
-        </td>
-
-      </tr>
-
-    `;
-
-  } else {
-
-    tbody.innerHTML = empleados
-      .map((usuario) => {
-
-        return `
-
-          <tr>
-
-            <td>
-              ${usuario.run || "Sin RUN"}
-            </td>
-
-            <td>
-              ${usuario.nombre || "-"}
-            </td>
-
-            <td>
-              ${usuario.email || "-"}
-            </td>
-
-            <td>
-              ${obtenerNombreRolAdmin(usuario.rol)}
-            </td>
-
-            <td>
-              ${usuario.region || "-"}
-            </td>
-
-          </tr>
-
-        `;
-
-      })
-      .join("");
-
-  }
+  const empleados = usuarios.filter(
+    (usuario) =>
+      usuario.rol === "vendedor" ||
+      usuario.rol === "admin"
+  );
 
 
   if (contador) {
 
     contador.textContent =
-      empleados.length +
-      (empleados.length === 1
-        ? " empleado registrado"
-        : " empleados registrados");
-
+      `${empleados.length} empleados registrados`;
   }
 
+
+  if (empleados.length === 0) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          No hay empleados registrados.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  tbody.innerHTML = empleados
+    .map((empleado) => {
+
+      const esAdmin =
+        empleado.rol === "admin";
+
+      const rolTexto =
+        esAdmin
+          ? "Administrador"
+          : "Vendedor";
+
+
+      const acciones = esAdmin
+        ? `
+          <span class="text-muted">
+            Usuario protegido
+          </span>
+        `
+        : `
+          <div class="admin-row-actions">
+            <button
+              type="button"
+              class="admin-action-btn"
+              onclick="editarEmpleadoAdmin(${empleado.id})">
+              Editar
+            </button>
+
+            <button
+              type="button"
+              class="danger"
+              onclick="eliminarEmpleadoAdmin(${empleado.id})">
+              Eliminar
+            </button>
+          </div>
+        `;
+
+
+      return `
+        <tr>
+
+          <td>
+            ${empleado.run || "-"}
+          </td>
+
+          <td>
+            ${empleado.nombre || "-"}
+          </td>
+
+          <td>
+            ${empleado.email || "-"}
+          </td>
+
+          <td>
+            ${rolTexto}
+          </td>
+
+          <td>
+            ${empleado.region || "-"}
+          </td>
+
+          <td>
+            ${acciones}
+          </td>
+
+        </tr>
+      `;
+
+    })
+    .join("");
+}
+
+//OBTENER DATOS FORMULARIO EMPLEADO ADMIN
+function obtenerDatosFormularioEmpleadoAdmin() {
+
+  return {
+
+    editingId:
+      document.getElementById("admin-employee-editing-id")?.value || "",
+
+    run:
+      document.getElementById("admin-employee-run")
+        ?.value.trim().toUpperCase() || "",
+
+    nombre:
+      document.getElementById("admin-employee-name")
+        ?.value.trim() || "",
+
+    email:
+      document.getElementById("admin-employee-email")
+        ?.value.trim().toLowerCase() || "",
+
+    password:
+      document.getElementById("admin-employee-password")
+        ?.value.trim() || "",
+
+    fechaNacimiento:
+      document.getElementById("admin-employee-birthdate")
+        ?.value || "",
+
+    region:
+      document.getElementById("admin-employee-region")
+        ?.value || "",
+
+    comuna:
+      document.getElementById("admin-employee-comuna")
+        ?.value || "",
+
+    direccion:
+      document.getElementById("admin-employee-address")
+        ?.value.trim() || ""
+  };
+
+}
+
+//MENSAJES ADMIN EMPLEADOS
+function mostrarMensajeEmpleadoAdmin(
+  mensaje,
+  tipo = "error"
+) {
+
+  const contenedor =
+    document.getElementById("admin-employees-message");
+
+  if (!contenedor) {
+    return;
+  }
+
+  contenedor.textContent = mensaje;
+
+  contenedor.className =
+    "admin-form-message " + tipo;
+
+}
+
+//LIMPIAR FORMULARIO EMPLEADO ADMIN
+function limpiarFormularioEmpleadoAdmin(
+  limpiarMensaje = true
+) {
+
+  const formulario =
+    document.getElementById(
+      "admin-employee-form"
+    );
+
+  if (formulario) {
+    formulario.reset();
+  }
+
+
+  const editingId =
+    document.getElementById(
+      "admin-employee-editing-id"
+    );
+
+  if (editingId) {
+    editingId.value = "";
+  }
+
+
+  const titulo =
+    document.getElementById(
+      "admin-employee-form-title"
+    );
+
+  if (titulo) {
+    titulo.textContent =
+      "Agregar vendedor";
+  }
+
+
+  const comuna =
+    document.getElementById(
+      "admin-employee-comuna"
+    );
+
+  if (comuna) {
+
+    comuna.innerHTML =
+      '<option value="">Selecciona una comuna</option>';
+
+    comuna.disabled = true;
+  }
+
+
+  if (limpiarMensaje) {
+
+    const mensaje =
+      document.getElementById(
+        "admin-employees-message"
+      );
+
+    if (mensaje) {
+
+      mensaje.textContent = "";
+
+      mensaje.className =
+        "admin-form-message";
+    }
+  }
+}
+
+//GUARDAR EMPLEADO ADMIN
+function guardarEmpleadoAdmin() {
+
+  const datos =
+    obtenerDatosFormularioEmpleadoAdmin();
+
+  const errores = [];
+
+  const usuarios =
+    obtenerUsuariosRegistrados();
+
+
+  // RUN
+
+  if (datos.run === "") {
+
+    errores.push("El RUN es obligatorio.");
+
+  } else if (
+    datos.run.includes(".") ||
+    datos.run.includes("-")
+  ) {
+
+    errores.push(
+      "El RUN debe ingresarse sin puntos ni guion."
+    );
+
+  } else if (
+    datos.run.length < 7 ||
+    datos.run.length > 9
+  ) {
+
+    errores.push(
+      "El RUN debe tener entre 7 y 9 caracteres."
+    );
+
+  } else if (!validarRun(datos.run)) {
+
+    errores.push(
+      "El RUN ingresado no es válido."
+    );
+  }
+
+
+  // Nombre
+
+  if (datos.nombre === "") {
+
+    errores.push(
+      "El nombre completo es obligatorio."
+    );
+  }
+
+
+  // Correo
+
+  const emailRegex =
+    /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/;
+
+
+  if (datos.email === "") {
+
+    errores.push(
+      "El correo es obligatorio."
+    );
+
+  } else if (datos.email.includes(" ")) {
+
+    errores.push(
+      "El correo no puede contener espacios."
+    );
+
+  } else if (!emailRegex.test(datos.email)) {
+
+    errores.push(
+      "El correo debe pertenecer a @duoc.cl, " +
+      "@profesor.duoc.cl o @gmail.com."
+    );
+  }
+
+
+  // Contraseña
+
+  if (!datos.editingId && datos.password === "") {
+
+    errores.push(
+      "La contraseña es obligatoria."
+    );
+  }
+
+
+  // Región
+
+  if (datos.region === "") {
+
+    errores.push(
+      "Debes seleccionar una región."
+    );
+  }
+
+
+  // Comuna
+
+  if (datos.comuna === "") {
+
+    errores.push(
+      "Debes seleccionar una comuna."
+    );
+  }
+
+
+  // Dirección
+
+  if (datos.direccion === "") {
+
+    errores.push(
+      "La dirección es obligatoria."
+    );
+
+  } else if (datos.direccion.length > 300) {
+
+    errores.push(
+      "La dirección no puede superar los 300 caracteres."
+    );
+  }
+
+
+  // RUN duplicado
+
+  const runDuplicado = usuarios.some(
+    (usuario) =>
+      usuario.run === datos.run &&
+      String(usuario.id) !== String(datos.editingId)
+  );
+
+
+  if (runDuplicado) {
+
+    errores.push(
+      "Ya existe un usuario registrado con ese RUN."
+    );
+  }
+
+
+  // Correo duplicado
+
+  const correoDuplicado = usuarios.some(
+    (usuario) =>
+      usuario.email === datos.email &&
+      String(usuario.id) !== String(datos.editingId)
+  );
+
+
+  if (correoDuplicado) {
+
+    errores.push(
+      "Ya existe un usuario registrado con ese correo."
+    );
+  }
+
+
+  // Mostrar errores
+
+  if (errores.length > 0) {
+
+    mostrarMensajeEmpleadoAdmin(
+      errores.join(" ")
+    );
+
+    return false;
+  }
+
+
+  // Beneficio Duoc
+
+  const descuentoDuoc =
+    datos.email.endsWith("@duoc.cl") ||
+    datos.email.endsWith("@profesor.duoc.cl");
+
+
+  // EDITAR VENDEDOR
+
+  if (datos.editingId) {
+
+    const usuariosActualizados =
+      usuarios.map((usuario) => {
+
+        if (
+          String(usuario.id) !==
+          String(datos.editingId)
+        ) {
+
+          return usuario;
+        }
+
+
+        return {
+
+          ...usuario,
+
+          run: datos.run,
+
+          nombre: datos.nombre,
+
+          email: datos.email,
+
+          password:
+            datos.password ||
+            usuario.password,
+
+          fechaNacimiento:
+            datos.fechaNacimiento,
+
+          region:
+            datos.region,
+
+          comuna:
+            datos.comuna,
+
+          direccion:
+            datos.direccion,
+
+          rol: "vendedor",
+
+          descuentoDuoc
+        };
+
+      });
+
+
+    guardarUsuariosRegistrados(
+      usuariosActualizados
+    );
+
+
+    renderizarEmpleadosAdmin();
+
+
+    limpiarFormularioEmpleadoAdmin(
+      false
+    );
+
+
+    mostrarMensajeEmpleadoAdmin(
+      "Vendedor actualizado correctamente.",
+      "success"
+    );
+
+
+  // CREAR VENDEDOR
+
+  } else {
+
+    const nuevoEmpleado = {
+
+      id: Date.now(),
+
+      run: datos.run,
+
+      nombre: datos.nombre,
+
+      email: datos.email,
+
+      password: datos.password,
+
+      fechaNacimiento:
+        datos.fechaNacimiento,
+
+      telefono: "",
+
+      region:
+        datos.region,
+
+      comuna:
+        datos.comuna,
+
+      direccion:
+        datos.direccion,
+
+      rol: "vendedor",
+
+      descuentoDuoc
+    };
+
+
+    usuarios.push(nuevoEmpleado);
+
+
+    guardarUsuariosRegistrados(
+      usuarios
+    );
+
+
+    renderizarEmpleadosAdmin();
+
+
+    limpiarFormularioEmpleadoAdmin(
+      false
+    );
+
+
+    mostrarMensajeEmpleadoAdmin(
+      "Vendedor agregado correctamente.",
+      "success"
+    );
+  }
+
+
+  return false;
+}
+
+//ELIMINAR EMPLEADO ADMIN
+function eliminarEmpleadoAdmin(id) {
+
+  const usuarios =
+    obtenerUsuariosRegistrados();
+
+  const empleado =
+    usuarios.find(
+      (usuario) =>
+        String(usuario.id) === String(id)
+    );
+
+
+  if (!empleado) {
+    return;
+  }
+
+
+  // Nunca eliminamos el administrador
+  // desde este mantenedor.
+
+  if (empleado.rol === "admin") {
+
+    mostrarMensajeEmpleadoAdmin(
+      "El administrador base no puede eliminarse."
+    );
+
+    return;
+  }
+
+
+  const confirmar = confirm(
+    `¿Deseas eliminar al vendedor ${empleado.nombre}?`
+  );
+
+
+  if (!confirmar) {
+    return;
+  }
+
+
+  const usuariosActualizados =
+    usuarios.filter(
+      (usuario) =>
+        String(usuario.id) !== String(id)
+    );
+
+
+  guardarUsuariosRegistrados(
+    usuariosActualizados
+  );
+
+
+  renderizarEmpleadosAdmin();
+
+
+  mostrarMensajeEmpleadoAdmin(
+    "Vendedor eliminado correctamente.",
+    "success"
+  );
+}
+
+
+function prepararNuevoEmpleadoAdmin() {
+
+  limpiarFormularioEmpleadoAdmin();
+
+  const campoRun =
+    document.getElementById(
+      "admin-employee-run"
+    );
+
+  if (campoRun) {
+    campoRun.focus();
+  }
+}
+
+function editarEmpleadoAdmin(id) {
+
+  const usuarios =
+    obtenerUsuariosRegistrados();
+
+  const empleado =
+    usuarios.find(
+      (usuario) =>
+        String(usuario.id) === String(id)
+    );
+
+
+  if (!empleado) {
+    return;
+  }
+
+
+  // Seguridad adicional:
+  // el administrador base no se edita aquí.
+
+  if (empleado.rol === "admin") {
+    return;
+  }
+
+
+  document.getElementById(
+    "admin-employee-editing-id"
+  ).value = empleado.id;
+
+
+  document.getElementById(
+    "admin-employee-run"
+  ).value = empleado.run || "";
+
+
+  document.getElementById(
+    "admin-employee-name"
+  ).value = empleado.nombre || "";
+
+
+  document.getElementById(
+    "admin-employee-email"
+  ).value = empleado.email || "";
+
+
+  // La contraseña queda vacía.
+  // Si no escribe una nueva, conserva la anterior.
+
+  document.getElementById(
+    "admin-employee-password"
+  ).value = "";
+
+
+  document.getElementById(
+    "admin-employee-birthdate"
+  ).value =
+    empleado.fechaNacimiento || "";
+
+
+  document.getElementById(
+    "admin-employee-region"
+  ).value =
+    empleado.region || "";
+
+
+  cargarComunasEmpleadoAdmin(
+    empleado.region,
+    empleado.comuna
+  );
+
+
+  document.getElementById(
+    "admin-employee-address"
+  ).value =
+    empleado.direccion || "";
+
+
+  document.getElementById(
+    "admin-employee-form-title"
+  ).textContent =
+    "Editar vendedor";
+
+
+  mostrarMensajeEmpleadoAdmin(
+    "Editando vendedor.",
+    "success"
+  );
+
+
+  document.getElementById(
+    "admin-employee-form"
+  )?.scrollIntoView({
+    behavior: "smooth"
+  });
 }
 
 //MOSTRAR USUARIOS REGISTRADOS EN ADMIN
@@ -1032,10 +1800,6 @@ function obtenerDatosFormularioUsuarioAdmin() {
 
     fechaNacimiento:
       document.getElementById("admin-user-birthdate")
-        ?.value || "",
-
-    rol:
-      document.getElementById("admin-user-role")
         ?.value || "",
 
     region:
@@ -1241,15 +2005,6 @@ function guardarUsuarioAdmin() {
 
   }
 
-  // ROL
-  if (datos.rol === "") {
-
-    errores.push(
-      "Debes seleccionar un tipo de usuario."
-    );
-
-  }
-
   // REGIÓN
   if (datos.region === "") {
 
@@ -1356,7 +2111,7 @@ function guardarUsuarioAdmin() {
         comuna: datos.comuna,
         direccion: datos.direccion,
 
-        rol: datos.rol,
+        rol: "cliente",
 
         descuentoDuoc
       };
@@ -1401,7 +2156,7 @@ function guardarUsuarioAdmin() {
 
     direccion: datos.direccion,
 
-    rol: datos.rol,
+    rol: "cliente",
 
     descuentoDuoc: descuentoDuoc
   };
@@ -1472,11 +2227,6 @@ function editarUsuarioAdmin(idUsuario) {
   document.getElementById(
     "admin-user-birthdate"
   ).value = usuario.fechaNacimiento || "";
-
-
-  document.getElementById(
-    "admin-user-role"
-  ).value = usuario.rol || "cliente";
 
 
   document.getElementById(
@@ -1605,6 +2355,7 @@ function cargarPanelAdministrador() {
   renderizarPedidosAdmin();
   cargarRegionesUsuariosAdmin();
   renderizarUsuariosAdmin();
+  cargarRegionesEmpleadosAdmin();
   renderizarEmpleadosAdmin();
 }
 
@@ -2958,6 +3709,13 @@ function actualizarResumenCompra() {
 }
 
 function sincronizarCarrito() {
+
+  // Si ya no quedan productos,
+  // el descuento deja de pertenecer a una compra activa.
+  if (carrito.length === 0 && descuentoAplicado) {
+    reiniciarDescuento();
+  }
+
   guardarCarrito();
   mostrarCarrito();
   actualizarContadorCarrito();

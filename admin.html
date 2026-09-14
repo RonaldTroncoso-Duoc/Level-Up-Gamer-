@@ -635,36 +635,7 @@
                                         id="admin-user-birthdate">
                                 </label>
 
-
-                                <!-- Rol -->
-
-                                <label>
-                                    Tipo de usuario *
-
-                                    <select id="admin-user-role">
-
-                                        <option value="">
-                                            Selecciona un rol
-                                        </option>
-
-                                        <option value="cliente">
-                                            Cliente
-                                        </option>
-
-                                        <option value="vendedor">
-                                            Vendedor
-                                        </option>
-
-                                        <option value="admin">
-                                            Administrador
-                                        </option>
-
-                                    </select>
-                                </label>
-
-
                                 <!-- Región -->
-
                                 <label>
                                     Región *
 
@@ -776,6 +747,14 @@
                             </p>
                         </div>
 
+                        <button type="button"
+                                class="admin-primary-btn"
+                                onclick="prepararNuevoEmpleadoAdmin()">
+
+                            + Nuevo vendedor
+
+                        </button>
+
                     </div>
 
 
@@ -791,6 +770,7 @@
                                     <th>Correo</th>
                                     <th>Rol</th>
                                     <th>Región</th>
+                                    <th>Acciones</th>
                                 </tr>
 
                             </thead>
@@ -807,6 +787,144 @@
                     </div>
 
                 </div>
+
+                <aside class="admin-form-card mt-4">
+
+                    <div class="admin-form-header">
+
+                        <p>Formulario de empleado</p>
+
+                        <h3 id="admin-employee-form-title">
+                            Agregar vendedor
+                        </h3>
+
+                    </div>
+
+
+                    <form id="admin-employee-form"
+                        onsubmit="return guardarEmpleadoAdmin()"
+                        novalidate>
+
+
+                        <input type="hidden"
+                            id="admin-employee-editing-id">
+
+
+                        <div class="admin-form-grid">
+
+                            <label>
+                                RUN *
+
+                                <input type="text"
+                                    id="admin-employee-run"
+                                    maxlength="9"
+                                    placeholder="Ej: 123456785">
+                            </label>
+
+
+                            <label>
+                                Nombre completo *
+
+                                <input type="text"
+                                    id="admin-employee-name"
+                                    maxlength="100"
+                                    placeholder="Nombre completo">
+                            </label>
+
+
+                            <label>
+                                Correo *
+
+                                <input type="email"
+                                    id="admin-employee-email"
+                                    maxlength="100"
+                                    placeholder="correo@gmail.com">
+                            </label>
+
+
+                            <label>
+                                Contraseña *
+
+                                <input type="password"
+                                    id="admin-employee-password"
+                                    placeholder="Contraseña">
+                            </label>
+
+
+                            <label>
+                                Fecha de nacimiento
+
+                                <input type="date"
+                                    id="admin-employee-birthdate">
+                            </label>
+
+
+                            <label>
+                                Región *
+
+                                <select id="admin-employee-region">
+
+                                    <option value="">
+                                        Selecciona una región
+                                    </option>
+
+                                </select>
+                            </label>
+
+
+                            <label>
+                                Comuna *
+
+                                <select id="admin-employee-comuna"
+                                        disabled>
+
+                                    <option value="">
+                                        Selecciona una comuna
+                                    </option>
+
+                                </select>
+                            </label>
+
+
+                            <label class="admin-form-full">
+                                Dirección *
+
+                                <input type="text"
+                                    id="admin-employee-address"
+                                    maxlength="300"
+                                    placeholder="Dirección del vendedor">
+                            </label>
+
+                        </div>
+
+
+                        <div id="admin-employees-message"
+                            class="admin-form-message">
+                        </div>
+
+
+                        <div class="admin-form-actions">
+
+                            <button type="submit"
+                                    class="admin-primary-btn">
+
+                                Guardar vendedor
+
+                            </button>
+
+                            <button type="button"
+                                    class="admin-secondary-btn"
+                                    onclick="limpiarFormularioEmpleadoAdmin()">
+
+                                Limpiar
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </aside>
 
             </section>
 
